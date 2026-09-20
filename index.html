@@ -1,0 +1,1505 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kotoba</title>
+<meta name="color-scheme" content="light dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;600&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#E9EBE4;
+  --surface:#F2F3EE;
+  --ink:#171B23;
+  --ink-2:#4A5262;
+  --ink-3:#848C98;
+  --rule:#CFD3CA;
+  --indigo:#2E3F5C;
+  --seal:#A8433A;
+  --shadow:rgba(23,27,35,.10);
+
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  scroll-padding-top:env(safe-area-inset-top,0px);
+  color-scheme:light dark;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#151C29;
+    --surface:#1D2636;
+    --ink:#E7EAF0;
+    --ink-2:#A8B1C2;
+    --ink-3:#6E7A8E;
+    --rule:#2C3748;
+    --indigo:#8FA6CC;
+    --seal:#D4695D;
+    --shadow:rgba(0,0,0,.45);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#151C29;
+  --surface:#1D2636;
+  --ink:#E7EAF0;
+  --ink-2:#A8B1C2;
+  --ink-3:#6E7A8E;
+  --rule:#2C3748;
+  --indigo:#8FA6CC;
+  --seal:#D4695D;
+  --shadow:rgba(0,0,0,.45);
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%}
+body{
+  height:100%;margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased;overscroll-behavior:none;
+}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:2px solid var(--indigo);outline-offset:3px;border-radius:2px}
+
+.app{height:100%;max-width:560px;margin:0 auto;display:flex;flex-direction:column;position:relative;overflow:hidden}
+
+/* ---------- top bar ---------- */
+.bar{
+  flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;
+  gap:12px;padding:14px 20px 12px;border-bottom:1px solid var(--rule);
+}
+.bar-left{display:flex;align-items:baseline;gap:12px;min-width:0}
+[hidden]{display:none !important}
+.date{font-size:.8125rem;letter-spacing:.01em;color:var(--ink-3);white-space:nowrap}
+.marks{display:flex;gap:5px;align-items:center;cursor:pointer;-webkit-user-select:none;user-select:none;padding:4px 0}
+.marks.test .mark{background:var(--indigo);transform:scaleX(.6)}
+.mark{width:13px;height:4px;border-radius:2px;background:var(--rule);transition:background .35s ease,transform .35s ease}
+.mark.spent{background:var(--seal);transform:scaleX(1)}
+.bar-btn{
+  display:flex;align-items:center;gap:7px;padding:6px 11px;border:1px solid var(--rule);
+  border-radius:999px;font-size:.8125rem;color:var(--ink-2);white-space:nowrap;
+}
+.bar-btn:hover{border-color:var(--ink-3)}
+.bar-btn.on{background:var(--surface);border-color:var(--ink-3);color:var(--ink)}
+.bar-btn b{font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+
+/* ---------- stage ---------- */
+.stage{flex:1 1 auto;position:relative;overflow:hidden}
+.view{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.view[hidden]{display:none}
+
+/* ---------- daily word ---------- */
+.hero{
+  min-height:56%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:28px 20px 12px;text-align:center;
+}
+.word{
+  font-family:"Shippori Mincho B1","Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;
+  font-weight:600;line-height:1.02;letter-spacing:.01em;
+  font-size:var(--hero,7rem);word-break:keep-all;
+}
+.cue{
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  margin-top:22px;font-size:.75rem;color:var(--ink-3);
+}
+.cue span{display:block;width:1px;height:18px;background:var(--rule)}
+
+.detail{padding:4px 22px 34px;max-width:36em;margin:0 auto}
+.row{padding:18px 0;border-top:1px solid var(--rule)}
+.row:first-child{border-top:0}
+.k-label{font-size:.75rem;color:var(--ink-3);margin:0 0 6px}
+.kana{
+  font-family:"Shippori Mincho B1","Hiragino Mincho ProN","Noto Serif JP",serif;
+  font-size:1.75rem;margin:0;line-height:1.3;
+}
+.romaji{font-size:1rem;color:var(--ink-2);margin:4px 0 0;font-style:italic}
+.trans{font-size:1.5rem;font-weight:500;margin:0;line-height:1.3}
+.def{font-size:1rem;line-height:1.6;color:var(--ink-2);margin:8px 0 0}
+.tag{
+  display:inline-block;margin-top:14px;font-size:.75rem;color:var(--ink-3);
+  border:1px solid var(--rule);border-radius:999px;padding:3px 10px;
+}
+.saved-flag{color:var(--seal);font-size:.8125rem;margin:16px 0 0;display:none}
+.saved-flag.on{display:block}
+.lock-note{
+  display:none;margin:18px 0 0;padding:12px 14px;border-left:2px solid var(--seal);
+  background:var(--surface);font-size:.875rem;line-height:1.55;color:var(--ink-2);border-radius:0 8px 8px 0;
+}
+.lock-note.on{display:block}
+
+/* ---------- practice ---------- */
+.practice{display:flex;flex-direction:column;min-height:100%;padding:0 20px 18px}
+.p-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:14px 2px;font-size:.8125rem;color:var(--ink-3);
+}
+.p-head b{color:var(--ink-2);font-weight:500}
+.count{font-variant-numeric:tabular-nums}
+.card{
+  flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:18px;text-align:center;background:var(--surface);border:1px solid var(--rule);
+  border-radius:20px;padding:34px 22px;box-shadow:0 1px 0 var(--shadow);
+  width:100%;
+}
+.card:active{transform:scale(.995)}
+.face-jp{
+  font-family:"Shippori Mincho B1","Hiragino Mincho ProN","Noto Serif JP",serif;
+  font-weight:600;line-height:1.05;font-size:var(--face,4.5rem);
+}
+.face-en{font-size:2rem;font-weight:500;line-height:1.25}
+.face-kana{
+  font-family:"Shippori Mincho B1","Hiragino Mincho ProN","Noto Serif JP",serif;
+  font-size:1.5rem;color:var(--ink-2);margin:14px 0 0;letter-spacing:.06em;line-height:1.3;
+}
+.face-def{font-size:1rem;color:var(--ink-2);line-height:1.6;max-width:26em}
+.answer{
+  display:flex;flex-direction:column;gap:10px;align-items:center;width:100%;
+  padding-top:18px;border-top:1px solid var(--rule);
+}
+.answer[hidden]{display:none}
+.reveal-in{animation:rise .32s cubic-bezier(.2,.7,.3,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){.reveal-in{animation:none}}
+.tap-hint{font-size:.8125rem;color:var(--ink-3)}
+.nav{display:flex;align-items:center;justify-content:center;gap:10px;padding-top:16px}
+.nav button{
+  width:60px;height:46px;border:1px solid var(--rule);border-radius:12px;
+  color:var(--ink-2);font-size:1.1rem;display:grid;place-items:center;
+}
+.nav button:disabled{opacity:.35;cursor:default}
+.nav .flip{flex:1;font-size:.9375rem;font-weight:500;color:var(--ink)}
+
+/* ---------- empty ---------- */
+.empty{
+  min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:12px;padding:40px 30px;text-align:center;
+}
+.empty h2{font-size:1.25rem;font-weight:500;margin:0}
+.empty p{margin:0;color:var(--ink-2);line-height:1.6;max-width:24em}
+
+/* ---------- dock ---------- */
+.dock{
+  flex:0 0 auto;display:grid;grid-template-columns:repeat(4,1fr);
+  border-top:1px solid var(--rule);background:var(--surface);
+}
+.dock button{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+  padding:13px 4px 15px;font-size:.6875rem;color:var(--ink-3);
+  border-right:1px solid var(--rule);min-height:64px;
+}
+.dock button:last-child{border-right:0}
+.dock .glyph{font-size:1.375rem;line-height:1;color:var(--ink-2)}
+.dock .glyph.jp{font-family:"Shippori Mincho B1","Hiragino Mincho ProN",serif;font-size:1.0625rem;font-weight:600}
+.dock button.on{color:var(--ink);background:var(--paper)}
+.dock button.on .glyph{color:var(--indigo)}
+.dock button.keep .glyph{color:var(--seal)}
+/* off the daily screen, Learn and Skip give up their two slots to one wide
+   back button - a different shape, so there's no muscle memory to mis-fire */
+.dock #b-back{grid-column:span 2}
+.dock #b-back .glyph{color:var(--ink)}
+.dock button:disabled{opacity:.3;cursor:default}
+.dock button:disabled .glyph{color:var(--ink-3)}
+
+/* ---------- panel ---------- */
+.panel{
+  position:absolute;inset:0;background:var(--paper);display:flex;flex-direction:column;
+  transform:translateX(100%);transition:transform .3s cubic-bezier(.2,.7,.3,1);z-index:5;
+}
+.panel.open{transform:none}
+@media (prefers-reduced-motion: reduce){.panel{transition:none}}
+.panel-head{
+  flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;
+  padding:16px 20px;border-bottom:1px solid var(--rule);
+}
+.panel-head h2{margin:0;font-size:1.0625rem;font-weight:500}
+.panel-head .sub{font-size:.8125rem;color:var(--ink-3);margin:2px 0 0}
+.panel-list{flex:1 1 auto;overflow-y:auto;padding:0 8px 24px}
+.entry{display:flex;align-items:center;gap:14px;padding:13px 12px;border-bottom:1px solid var(--rule)}
+.entry-main{flex:1 1 auto;min-width:0}
+.entry-jp{
+  font-family:"Shippori Mincho B1","Hiragino Mincho ProN","Noto Serif JP",serif;
+  font-size:1.3125rem;line-height:1.25;
+}
+.entry-sub{font-size:.8125rem;color:var(--ink-2);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.entry button{
+  flex:0 0 auto;width:36px;height:36px;border-radius:10px;border:1px solid var(--rule);
+  color:var(--ink-3);display:grid;place-items:center;font-size:1rem;
+}
+.entry button:hover{color:var(--seal);border-color:var(--seal)}
+
+.settings{padding:18px 20px 26px;border-top:1px solid var(--rule);background:var(--surface)}
+.set-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:9px 0}
+.set-row label{font-size:.9375rem}
+.set-row .hint{font-size:.75rem;color:var(--ink-3);margin-top:3px;line-height:1.5}
+.set-row input[type=time],.set-row select{
+  font:inherit;font-size:.875rem;padding:6px 9px;border:1px solid var(--rule);
+  border-radius:9px;background:var(--paper);color:var(--ink);
+}
+.switch{position:relative;width:46px;height:27px;border-radius:999px;background:var(--rule);flex:0 0 auto;transition:background .2s}
+.switch.on{background:var(--indigo)}
+.switch::after{
+  content:"";position:absolute;top:3px;left:3px;width:21px;height:21px;border-radius:50%;
+  background:var(--surface);transition:transform .2s cubic-bezier(.2,.7,.3,1);
+}
+.switch.on::after{transform:translateX(19px)}
+
+.toast{
+  position:absolute;left:50%;bottom:86px;transform:translate(-50%,14px);
+  background:var(--ink);color:var(--paper);font-size:.875rem;padding:9px 16px;
+  border-radius:999px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:9;
+  max-width:92%;display:flex;align-items:center;gap:16px;
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast.act{pointer-events:auto}
+#toast-msg{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.toast-act{
+  flex:0 0 auto;color:var(--paper);font-weight:700;font-size:.875rem;
+  text-decoration:underline;text-underline-offset:3px;padding:4px 0;margin:-4px 0;
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="bar">
+    <div class="bar-left" id="bar-left">
+      <div class="marks" id="marks" title="Words you can still learn today">
+        <i class="mark"></i><i class="mark"></i><i class="mark"></i>
+      </div>
+      <span class="date" id="date"></span>
+    </div>
+    <button class="bar-btn" id="open-list">Saved <b id="saved-count">0</b></button>
+  </header>
+
+  <div class="stage">
+
+    <!-- Today's word -->
+    <section class="view" id="v-daily">
+      <div class="hero">
+        <div class="word" id="hero-word">言葉</div>
+        <div class="cue"><span></span>scroll for the reading</div>
+      </div>
+      <div class="detail">
+        <div class="row">
+          <p class="k-label">Reading</p>
+          <p class="kana" id="d-kana">ことば</p>
+          <p class="romaji" id="d-romaji">kotoba</p>
+        </div>
+        <div class="row">
+          <p class="k-label">Meaning</p>
+          <p class="trans" id="d-trans">word, language</p>
+          <p class="def" id="d-def"></p>
+          <span class="tag" id="d-tag">noun</span>
+          <p class="saved-flag" id="d-saved">In your deck</p>
+          <p class="lock-note" id="d-lock">Three words learned today. This one is waiting for you tomorrow.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Practice -->
+    <section class="view" id="v-practice" hidden>
+      <div class="practice">
+        <div class="p-head">
+          <b id="p-mode">Japanese → English</b>
+          <span class="count" id="p-count">1 / 1</span>
+        </div>
+        <button class="card" id="p-card">
+          <div id="p-front"></div>
+          <div class="answer" id="p-back" hidden></div>
+          <p class="tap-hint" id="p-hint">Tap to reveal</p>
+        </button>
+        <div class="nav">
+          <button id="p-prev" aria-label="Previous word">←</button>
+          <button class="flip" id="p-flip">Reveal</button>
+          <button id="p-next" aria-label="Next word">→</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Empty deck -->
+    <section class="view" id="v-empty" hidden>
+      <div class="empty">
+        <h2>Your deck is empty</h2>
+        <p>Tap the check on a word to add it. You can learn three a day — practice unlocks as soon as you save your first one.</p>
+      </div>
+    </section>
+
+    <!-- Saved words panel -->
+    <aside class="panel" id="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Your words</h2>
+          <p class="sub" id="panel-sub">Nothing saved yet</p>
+        </div>
+      </div>
+      <div class="panel-list" id="panel-list"></div>
+      <div class="settings">
+        <div class="set-row">
+          <div>
+            <label for="notify-toggle">Daily word reminder</label>
+            <p class="hint" id="notify-hint">Off</p>
+          </div>
+          <button class="switch" id="notify-toggle" role="switch" aria-checked="false" aria-label="Daily word reminder"></button>
+        </div>
+        <div class="set-row">
+          <label for="notify-time">Reminder time</label>
+          <input type="time" id="notify-time" value="08:00">
+        </div>
+        <div class="set-row">
+          <label for="theme-sel">Appearance</label>
+          <select id="theme-sel">
+            <option value="auto">Match device</option>
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+        </div>
+      </div>
+    </aside>
+
+    <div class="toast" id="toast" role="status">
+      <span id="toast-msg"></span>
+      <button class="toast-act" id="toast-act" hidden>Undo</button>
+    </div>
+  </div>
+
+  <nav class="dock">
+    <button id="b-back" hidden><span class="glyph" aria-hidden="true">&#8592;</span>Today's word</button>
+    <button id="b-keep" class="keep"><span class="glyph">✓</span>Learn</button>
+    <button id="b-skip"><span class="glyph">✕</span>Skip</button>
+    <button id="b-jp"><span class="glyph jp">日→A</span>Recall</button>
+    <button id="b-en"><span class="glyph jp">A→日</span>Write</button>
+  </nav>
+</div>
+
+<script>
+"use strict";
+
+/* ============ vocabulary ============ */
+const WORDS = [
+// tier 1 - core everyday words, served first
+{w:"水",k:"みず",r:"mizu",e:"water",d:"Plain, usually cold water — hot water is お湯 (oyu).",t:"noun",lv:1},
+{w:"火",k:"ひ",r:"hi",e:"fire",d:"Fire or flame, including the burner on a stove.",t:"noun",lv:1},
+{w:"山",k:"やま",r:"yama",e:"mountain",d:"A mountain or hill; also used for a heap of something.",t:"noun",lv:1},
+{w:"川",k:"かわ",r:"kawa",e:"river",d:"A river or stream of any size.",t:"noun",lv:1},
+{w:"空",k:"そら",r:"sora",e:"sky",d:"The sky overhead. Read くう in compounds like 空港.",t:"noun",lv:1},
+{w:"海",k:"うみ",r:"umi",e:"sea",d:"The sea or ocean; also the beach as a destination.",t:"noun",lv:1},
+{w:"木",k:"き",r:"ki",e:"tree, wood",d:"A living tree, or wood as a material.",t:"noun",lv:1},
+{w:"花",k:"はな",r:"hana",e:"flower",d:"A flower or blossom.",t:"noun",lv:1},
+{w:"犬",k:"いぬ",r:"inu",e:"dog",d:"A dog.",t:"noun",lv:1},
+{w:"猫",k:"ねこ",r:"neko",e:"cat",d:"A cat.",t:"noun",lv:1},
+{w:"人",k:"ひと",r:"hito",e:"person",d:"A person. Read にん or じん in compounds.",t:"noun",lv:1},
+{w:"友達",k:"ともだち",r:"tomodachi",e:"friend",d:"A friend. Works for one friend or several.",t:"noun",lv:1},
+{w:"家族",k:"かぞく",r:"kazoku",e:"family",d:"Your family as a unit.",t:"noun",lv:1},
+{w:"学校",k:"がっこう",r:"gakkou",e:"school",d:"A school, from primary up to high school.",t:"noun",lv:1},
+{w:"先生",k:"せんせい",r:"sensei",e:"teacher",d:"A teacher, doctor, or anyone with expertise — used as a title.",t:"noun",lv:1},
+{w:"学生",k:"がくせい",r:"gakusei",e:"student",d:"A student, usually at university level.",t:"noun",lv:1},
+{w:"本",k:"ほん",r:"hon",e:"book",d:"A book. Also the counter for long thin objects.",t:"noun",lv:1},
+{w:"電話",k:"でんわ",r:"denwa",e:"telephone, phone call",d:"A phone, or a call — 電話する means to phone someone.",t:"noun",lv:1},
+{w:"時間",k:"じかん",r:"jikan",e:"time, hour",d:"Time in general, or a count of hours.",t:"noun",lv:1},
+{w:"今日",k:"きょう",r:"kyou",e:"today",d:"Today. Irregular reading — not こんにち here.",t:"noun",lv:1},
+{w:"明日",k:"あした",r:"ashita",e:"tomorrow",d:"Tomorrow. Also read あす in formal speech.",t:"noun",lv:1},
+{w:"昨日",k:"きのう",r:"kinou",e:"yesterday",d:"Yesterday.",t:"noun",lv:1},
+{w:"毎日",k:"まいにち",r:"mainichi",e:"every day",d:"Every day, daily.",t:"adverb",lv:1},
+{w:"朝",k:"あさ",r:"asa",e:"morning",d:"The morning, up to around noon.",t:"noun",lv:1},
+{w:"昼",k:"ひる",r:"hiru",e:"noon, daytime",d:"Midday or the daytime hours. 昼ご飯 is lunch.",t:"noun",lv:1},
+{w:"夜",k:"よる",r:"yoru",e:"night",d:"Night or evening.",t:"noun",lv:1},
+{w:"食べる",k:"たべる",r:"taberu",e:"to eat",d:"To eat. Ichidan verb: 食べます, 食べて.",t:"verb",lv:1},
+{w:"飲む",k:"のむ",r:"nomu",e:"to drink",d:"To drink; also used for taking medicine.",t:"verb",lv:1},
+{w:"見る",k:"みる",r:"miru",e:"to see, to watch",d:"To look at or watch. 聞く is its hearing counterpart.",t:"verb",lv:1},
+{w:"聞く",k:"きく",r:"kiku",e:"to listen, to ask",d:"To hear or listen — and also to ask a question.",t:"verb",lv:1},
+{w:"話す",k:"はなす",r:"hanasu",e:"to speak",d:"To speak or talk, especially a language.",t:"verb",lv:1},
+{w:"読む",k:"よむ",r:"yomu",e:"to read",d:"To read text.",t:"verb",lv:1},
+{w:"書く",k:"かく",r:"kaku",e:"to write",d:"To write or draw.",t:"verb",lv:1},
+{w:"行く",k:"いく",r:"iku",e:"to go",d:"To go. Irregular te-form: 行って.",t:"verb",lv:1},
+{w:"来る",k:"くる",r:"kuru",e:"to come",d:"To come. Irregular: 来ます (kimasu), 来て (kite).",t:"verb",lv:1},
+{w:"帰る",k:"かえる",r:"kaeru",e:"to go home",d:"To return home. Looks ichidan but conjugates godan.",t:"verb",lv:1},
+{w:"買う",k:"かう",r:"kau",e:"to buy",d:"To buy something.",t:"verb",lv:1},
+{w:"作る",k:"つくる",r:"tsukuru",e:"to make",d:"To make or build; also to cook a dish.",t:"verb",lv:1},
+{w:"働く",k:"はたらく",r:"hataraku",e:"to work",d:"To work at a job.",t:"verb",lv:1},
+{w:"休む",k:"やすむ",r:"yasumu",e:"to rest, to take off",d:"To rest, or to be absent from work or school.",t:"verb",lv:1},
+{w:"寝る",k:"ねる",r:"neru",e:"to sleep",d:"To sleep or go to bed.",t:"verb",lv:1},
+{w:"起きる",k:"おきる",r:"okiru",e:"to wake up",d:"To get up; also 'to happen' for events.",t:"verb",lv:1},
+{w:"待つ",k:"まつ",r:"matsu",e:"to wait",d:"To wait for someone or something.",t:"verb",lv:1},
+{w:"会う",k:"あう",r:"au",e:"to meet",d:"To meet someone. Takes に: 友達に会う.",t:"verb",lv:1},
+{w:"使う",k:"つかう",r:"tsukau",e:"to use",d:"To use a thing, or to spend money or time.",t:"verb",lv:1},
+{w:"教える",k:"おしえる",r:"oshieru",e:"to teach, to tell",d:"To teach a subject, or tell someone a fact.",t:"verb",lv:1},
+{w:"大きい",k:"おおきい",r:"ookii",e:"big",d:"Big or large. An i-adjective.",t:"adjective",lv:1},
+{w:"小さい",k:"ちいさい",r:"chiisai",e:"small",d:"Small or little.",t:"adjective",lv:1},
+{w:"高い",k:"たかい",r:"takai",e:"tall, expensive",d:"High or tall — and also expensive.",t:"adjective",lv:1},
+{w:"安い",k:"やすい",r:"yasui",e:"cheap",d:"Cheap or inexpensive.",t:"adjective",lv:1},
+{w:"新しい",k:"あたらしい",r:"atarashii",e:"new",d:"New or fresh.",t:"adjective",lv:1},
+{w:"古い",k:"ふるい",r:"furui",e:"old",d:"Old — for things, never for people's age.",t:"adjective",lv:1},
+{w:"早い",k:"はやい",r:"hayai",e:"early",d:"Early in time. 速い is the same sound for 'fast'.",t:"adjective",lv:1},
+{w:"遅い",k:"おそい",r:"osoi",e:"late, slow",d:"Late, or slow-moving.",t:"adjective",lv:1},
+{w:"楽しい",k:"たのしい",r:"tanoshii",e:"fun, enjoyable",d:"Enjoyable — describes the thing, not your mood.",t:"adjective",lv:1},
+{w:"難しい",k:"むずかしい",r:"muzukashii",e:"difficult",d:"Difficult or hard to do.",t:"adjective",lv:1},
+{w:"簡単",k:"かんたん",r:"kantan",e:"easy, simple",d:"Simple or easy. A na-adjective: 簡単な問題.",t:"adjective",lv:1},
+{w:"忙しい",k:"いそがしい",r:"isogashii",e:"busy",d:"Busy, with a lot to do.",t:"adjective",lv:1},
+{w:"元気",k:"げんき",r:"genki",e:"well, energetic",d:"In good health and spirits. 元気ですか asks how you are.",t:"adjective",lv:1},
+{w:"静か",k:"しずか",r:"shizuka",e:"quiet",d:"Quiet or calm. Na-adjective: 静かな部屋.",t:"adjective",lv:1},
+{w:"綺麗",k:"きれい",r:"kirei",e:"pretty, clean",d:"Beautiful or tidy. Na-adjective despite ending in い.",t:"adjective",lv:1},
+{w:"好き",k:"すき",r:"suki",e:"liked, favourite",d:"Liked. Takes が: 猫が好きです means 'I like cats'.",t:"adjective",lv:1},
+{w:"嫌い",k:"きらい",r:"kirai",e:"disliked",d:"Disliked or hated. Na-adjective, takes が.",t:"adjective",lv:1},
+{w:"上手",k:"じょうず",r:"jouzu",e:"skilled, good at",d:"Good at something. Used about others, not yourself.",t:"adjective",lv:1},
+{w:"下手",k:"へた",r:"heta",e:"unskilled, bad at",d:"Bad at something — fine to say about yourself.",t:"adjective",lv:1},
+{w:"駅",k:"えき",r:"eki",e:"station",d:"A train station.",t:"noun",lv:1},
+{w:"電車",k:"でんしゃ",r:"densha",e:"train",d:"An electric train — the everyday commuter kind.",t:"noun",lv:1},
+{w:"車",k:"くるま",r:"kuruma",e:"car",d:"A car. Read しゃ in compounds like 電車.",t:"noun",lv:1},
+{w:"道",k:"みち",r:"michi",e:"road, way",d:"A road or path; also 'the way' to do something.",t:"noun",lv:1},
+{w:"店",k:"みせ",r:"mise",e:"shop",d:"A shop or restaurant. Politely お店.",t:"noun",lv:1},
+{w:"部屋",k:"へや",r:"heya",e:"room",d:"A room in a house or a hotel room.",t:"noun",lv:1},
+{w:"会社",k:"かいしゃ",r:"kaisha",e:"company",d:"A company or firm — also 'the office' as a place.",t:"noun",lv:1},
+{w:"仕事",k:"しごと",r:"shigoto",e:"work, job",d:"Work or your job.",t:"noun",lv:1},
+{w:"名前",k:"なまえ",r:"namae",e:"name",d:"A name. Politely お名前 when asking someone's.",t:"noun",lv:1},
+{w:"魚",k:"さかな",r:"sakana",e:"fish",d:"Fish, alive or as food.",t:"noun",lv:1},
+{w:"肉",k:"にく",r:"niku",e:"meat",d:"Meat. 牛肉 beef, 鶏肉 chicken.",t:"noun",lv:1},
+{w:"卵",k:"たまご",r:"tamago",e:"egg",d:"An egg.",t:"noun",lv:1},
+{w:"ご飯",k:"ごはん",r:"gohan",e:"cooked rice, a meal",d:"Cooked rice — and by extension any meal.",t:"noun",lv:1},
+{w:"靴",k:"くつ",r:"kutsu",e:"shoes",d:"Shoes. 靴下 is socks.",t:"noun",lv:1},
+{w:"服",k:"ふく",r:"fuku",e:"clothes",d:"Clothes or clothing.",t:"noun",lv:1},
+{w:"天気",k:"てんき",r:"tenki",e:"weather",d:"The weather. いい天気 means nice weather.",t:"noun",lv:1},
+{w:"雨",k:"あめ",r:"ame",e:"rain",d:"Rain. 雨が降る means it rains.",t:"noun",lv:1},
+{w:"大丈夫",k:"だいじょうぶ",r:"daijoubu",e:"all right, fine",d:"OK or fine — both 'I'm fine' and 'no thanks'.",t:"adjective",lv:1},
+{w:"少し",k:"すこし",r:"sukoshi",e:"a little",d:"A small amount. ちょっと is the casual version.",t:"adverb",lv:1},
+{w:"一緒",k:"いっしょ",r:"issho",e:"together",d:"Together. 一緒に行く means to go together.",t:"adverb",lv:1},
+{w:"全部",k:"ぜんぶ",r:"zenbu",e:"all, everything",d:"All of it, the whole lot.",t:"noun",lv:1},
+{w:"コーヒー",k:"コーヒー",r:"koohii",e:"coffee",d:"Coffee. From Dutch koffie.",t:"katakana",lv:1},
+{w:"パン",k:"パン",r:"pan",e:"bread",d:"Bread. From Portuguese pão, not English.",t:"katakana",lv:1},
+{w:"テレビ",k:"テレビ",r:"terebi",e:"television",d:"A TV. Shortened from テレビジョン.",t:"katakana",lv:1},
+{w:"パソコン",k:"パソコン",r:"pasokon",e:"computer",d:"A personal computer, from 'personal computer'.",t:"katakana",lv:1},
+{w:"スマホ",k:"スマホ",r:"sumaho",e:"smartphone",d:"A smartphone. Clipped from スマートフォン.",t:"katakana",lv:1},
+{w:"コンビニ",k:"コンビニ",r:"konbini",e:"convenience store",d:"A convenience store — Lawson, 7-Eleven, FamilyMart.",t:"katakana",lv:1},
+{w:"レストラン",k:"レストラン",r:"resutoran",e:"restaurant",d:"A restaurant, usually a Western-style one.",t:"katakana",lv:1},
+{w:"ホテル",k:"ホテル",r:"hoteru",e:"hotel",d:"A hotel. A traditional inn is 旅館.",t:"katakana",lv:1},
+{w:"バス",k:"バス",r:"basu",e:"bus",d:"A bus. Same spelling as bath — context decides.",t:"katakana",lv:1},
+{w:"タクシー",k:"タクシー",r:"takushii",e:"taxi",d:"A taxi.",t:"katakana",lv:1},
+{w:"ゲーム",k:"ゲーム",r:"geemu",e:"game",d:"A game, usually a video game.",t:"katakana",lv:1},
+{w:"アニメ",k:"アニメ",r:"anime",e:"animation, anime",d:"Animation of any origin, not just Japanese.",t:"katakana",lv:1},
+{w:"トイレ",k:"トイレ",r:"toire",e:"toilet",d:"A toilet or bathroom. お手洗い is politer.",t:"katakana",lv:1},
+{w:"私",k:"わたし",r:"watashi",e:"I, me",d:"The standard neutral word for yourself.",t:"noun",lv:1},
+{w:"彼",k:"かれ",r:"kare",e:"he, boyfriend",d:"He or him; also means boyfriend.",t:"noun",lv:1},
+{w:"彼女",k:"かのじょ",r:"kanojo",e:"she, girlfriend",d:"She or her; also means girlfriend.",t:"noun",lv:1},
+{w:"誰",k:"だれ",r:"dare",e:"who",d:"Who. Politely どなた.",t:"noun",lv:1},
+{w:"何",k:"なに",r:"nani",e:"what",d:"What. Becomes なん before many counters.",t:"noun",lv:1},
+{w:"今",k:"いま",r:"ima",e:"now",d:"Right now, at this moment.",t:"noun",lv:1},
+{w:"時",k:"じ",r:"ji",e:"o'clock",d:"The counter for the hour: 三時 is three o'clock.",t:"noun",lv:1},
+{w:"分",k:"ふん",r:"fun",e:"minute",d:"The counter for minutes. Reading shifts to ぷん after some numbers.",t:"noun",lv:1},
+{w:"半",k:"はん",r:"han",e:"half",d:"Half past, when attached to an hour: 一時半.",t:"noun",lv:1},
+{w:"年",k:"とし",r:"toshi",e:"year",d:"A year, or someone's age. Read ねん in compounds.",t:"noun",lv:1},
+{w:"月",k:"つき",r:"tsuki",e:"moon, month",d:"The moon. Read がつ for calendar months.",t:"noun",lv:1},
+{w:"週",k:"しゅう",r:"shuu",e:"week",d:"A week. Appears in 今週, 来週, 先週.",t:"noun",lv:1},
+{w:"曜日",k:"ようび",r:"youbi",e:"day of the week",d:"The suffix for weekdays: 月曜日, 火曜日.",t:"noun",lv:1},
+{w:"午前",k:"ごぜん",r:"gozen",e:"morning, a.m.",d:"Before noon.",t:"noun",lv:1},
+{w:"午後",k:"ごご",r:"gogo",e:"afternoon, p.m.",d:"After noon.",t:"noun",lv:1},
+{w:"今朝",k:"けさ",r:"kesa",e:"this morning",d:"This morning. Irregular reading.",t:"noun",lv:1},
+{w:"今晩",k:"こんばん",r:"konban",e:"this evening",d:"Tonight. こんばんは greets with it.",t:"noun",lv:1},
+{w:"毎朝",k:"まいあさ",r:"maiasa",e:"every morning",d:"Every morning.",t:"adverb",lv:1},
+{w:"毎晩",k:"まいばん",r:"maiban",e:"every night",d:"Every evening.",t:"adverb",lv:1},
+{w:"今週",k:"こんしゅう",r:"konshuu",e:"this week",d:"This week.",t:"noun",lv:1},
+{w:"来週",k:"らいしゅう",r:"raishuu",e:"next week",d:"Next week.",t:"noun",lv:1},
+{w:"先週",k:"せんしゅう",r:"senshuu",e:"last week",d:"Last week.",t:"noun",lv:1},
+{w:"今年",k:"ことし",r:"kotoshi",e:"this year",d:"This year. Irregular reading.",t:"noun",lv:1},
+{w:"来年",k:"らいねん",r:"rainen",e:"next year",d:"Next year.",t:"noun",lv:1},
+{w:"去年",k:"きょねん",r:"kyonen",e:"last year",d:"Last year.",t:"noun",lv:1},
+{w:"今月",k:"こんげつ",r:"kongetsu",e:"this month",d:"This month.",t:"noun",lv:1},
+{w:"家",k:"いえ",r:"ie",e:"house, home",d:"A house. うち is the warmer word for your own.",t:"noun",lv:1},
+{w:"父",k:"ちち",r:"chichi",e:"father",d:"Your own father. Someone else's is お父さん.",t:"noun",lv:1},
+{w:"母",k:"はは",r:"haha",e:"mother",d:"Your own mother. Someone else's is お母さん.",t:"noun",lv:1},
+{w:"兄",k:"あに",r:"ani",e:"older brother",d:"Your own older brother. Others' is お兄さん.",t:"noun",lv:1},
+{w:"姉",k:"あね",r:"ane",e:"older sister",d:"Your own older sister. Others' is お姉さん.",t:"noun",lv:1},
+{w:"弟",k:"おとうと",r:"otouto",e:"younger brother",d:"A younger brother.",t:"noun",lv:1},
+{w:"妹",k:"いもうと",r:"imouto",e:"younger sister",d:"A younger sister.",t:"noun",lv:1},
+{w:"子供",k:"こども",r:"kodomo",e:"child",d:"A child, or children generally.",t:"noun",lv:1},
+{w:"両親",k:"りょうしん",r:"ryoushin",e:"parents",d:"Both parents together.",t:"noun",lv:1},
+{w:"目",k:"め",r:"me",e:"eye",d:"An eye. Also the suffix for ordinals: 三番目.",t:"noun",lv:1},
+{w:"手",k:"て",r:"te",e:"hand",d:"A hand or arm.",t:"noun",lv:1},
+{w:"足",k:"あし",r:"ashi",e:"foot, leg",d:"Foot or leg — Japanese uses one word for both.",t:"noun",lv:1},
+{w:"口",k:"くち",r:"kuchi",e:"mouth",d:"A mouth; also an opening or entrance.",t:"noun",lv:1},
+{w:"耳",k:"みみ",r:"mimi",e:"ear",d:"An ear.",t:"noun",lv:1},
+{w:"頭",k:"あたま",r:"atama",e:"head",d:"A head. 頭がいい means clever.",t:"noun",lv:1},
+{w:"顔",k:"かお",r:"kao",e:"face",d:"A face.",t:"noun",lv:1},
+{w:"体",k:"からだ",r:"karada",e:"body",d:"The body, or one's physical condition.",t:"noun",lv:1},
+{w:"声",k:"こえ",r:"koe",e:"voice",d:"A voice.",t:"noun",lv:1},
+{w:"上",k:"うえ",r:"ue",e:"above, on top",d:"On top of or above something.",t:"noun",lv:1},
+{w:"下",k:"した",r:"shita",e:"below, under",d:"Under or beneath.",t:"noun",lv:1},
+{w:"中",k:"なか",r:"naka",e:"inside",d:"Inside or in the middle of something.",t:"noun",lv:1},
+{w:"外",k:"そと",r:"soto",e:"outside",d:"Outside.",t:"noun",lv:1},
+{w:"前",k:"まえ",r:"mae",e:"front, before",d:"In front of, or before in time.",t:"noun",lv:1},
+{w:"後ろ",k:"うしろ",r:"ushiro",e:"behind",d:"Behind or at the back of.",t:"noun",lv:1},
+{w:"右",k:"みぎ",r:"migi",e:"right",d:"The right-hand side.",t:"noun",lv:1},
+{w:"左",k:"ひだり",r:"hidari",e:"left",d:"The left-hand side.",t:"noun",lv:1},
+{w:"隣",k:"となり",r:"tonari",e:"next to",d:"Next door or immediately beside.",t:"noun",lv:1},
+{w:"近く",k:"ちかく",r:"chikaku",e:"nearby",d:"The area near something.",t:"noun",lv:1},
+{w:"間",k:"あいだ",r:"aida",e:"between",d:"The space or time between two things.",t:"noun",lv:1},
+{w:"東",k:"ひがし",r:"higashi",e:"east",d:"East.",t:"noun",lv:1},
+{w:"西",k:"にし",r:"nishi",e:"west",d:"West.",t:"noun",lv:1},
+{w:"南",k:"みなみ",r:"minami",e:"south",d:"South.",t:"noun",lv:1},
+{w:"北",k:"きた",r:"kita",e:"north",d:"North.",t:"noun",lv:1},
+{w:"日本",k:"にほん",r:"nihon",e:"Japan",d:"Japan. Also read にっぽん in formal settings.",t:"noun",lv:1},
+{w:"国",k:"くに",r:"kuni",e:"country",d:"A country; also your home region.",t:"noun",lv:1},
+{w:"町",k:"まち",r:"machi",e:"town",d:"A town or neighbourhood.",t:"noun",lv:1},
+{w:"大学",k:"だいがく",r:"daigaku",e:"university",d:"A university.",t:"noun",lv:1},
+{w:"教室",k:"きょうしつ",r:"kyoushitsu",e:"classroom",d:"A classroom.",t:"noun",lv:1},
+{w:"公園",k:"こうえん",r:"kouen",e:"park",d:"A public park.",t:"noun",lv:1},
+{w:"分かる",k:"わかる",r:"wakaru",e:"to understand",d:"To understand. Takes が, not を.",t:"verb",lv:1},
+{w:"知る",k:"しる",r:"shiru",e:"to know",d:"To come to know. Usually used as 知っている.",t:"verb",lv:1},
+{w:"思う",k:"おもう",r:"omou",e:"to think",d:"To think or feel that something is so.",t:"verb",lv:1},
+{w:"言う",k:"いう",r:"iu",e:"to say",d:"To say. Pronounced ゆう in speech.",t:"verb",lv:1},
+{w:"持つ",k:"もつ",r:"motsu",e:"to hold, to have",d:"To hold in the hand, or to own.",t:"verb",lv:1},
+{w:"取る",k:"とる",r:"toru",e:"to take",d:"To take or pick up.",t:"verb",lv:1},
+{w:"出る",k:"でる",r:"deru",e:"to leave, to go out",d:"To go out of or leave a place.",t:"verb",lv:1},
+{w:"入る",k:"はいる",r:"hairu",e:"to enter",d:"To go in. Looks ichidan but conjugates godan.",t:"verb",lv:1},
+{w:"立つ",k:"たつ",r:"tatsu",e:"to stand",d:"To stand up.",t:"verb",lv:1},
+{w:"座る",k:"すわる",r:"suwaru",e:"to sit",d:"To sit down.",t:"verb",lv:1},
+{w:"歩く",k:"あるく",r:"aruku",e:"to walk",d:"To walk.",t:"verb",lv:1},
+{w:"走る",k:"はしる",r:"hashiru",e:"to run",d:"To run. Another godan verb ending in る.",t:"verb",lv:1},
+{w:"乗る",k:"のる",r:"noru",e:"to board",d:"To get on a train, bus or bike. Takes に.",t:"verb",lv:1},
+{w:"降りる",k:"おりる",r:"oriru",e:"to get off",d:"To get off a vehicle, or to descend.",t:"verb",lv:1},
+{w:"始まる",k:"はじまる",r:"hajimaru",e:"to begin",d:"Something begins by itself.",t:"verb",lv:1},
+{w:"終わる",k:"おわる",r:"owaru",e:"to end",d:"Something finishes.",t:"verb",lv:1},
+{w:"送る",k:"おくる",r:"okuru",e:"to send",d:"To send something, or see someone off.",t:"verb",lv:1},
+{w:"開ける",k:"あける",r:"akeru",e:"to open",d:"To open a door, window or box.",t:"verb",lv:1},
+{w:"閉める",k:"しめる",r:"shimeru",e:"to close",d:"To shut a door or window.",t:"verb",lv:1},
+{w:"着る",k:"きる",r:"kiru",e:"to wear",d:"To put on clothing worn above the waist.",t:"verb",lv:1},
+{w:"住む",k:"すむ",r:"sumu",e:"to live",d:"To live somewhere. Takes に.",t:"verb",lv:1},
+{w:"遊ぶ",k:"あそぶ",r:"asobu",e:"to play, to hang out",d:"To enjoy yourself — not only children's play.",t:"verb",lv:1},
+{w:"歌う",k:"うたう",r:"utau",e:"to sing",d:"To sing.",t:"verb",lv:1},
+{w:"良い",k:"いい",r:"ii",e:"good",d:"Good. Irregular: the past is よかった, not いかった.",t:"adjective",lv:1},
+{w:"悪い",k:"わるい",r:"warui",e:"bad",d:"Bad. Casually means 'sorry, my fault'.",t:"adjective",lv:1},
+{w:"多い",k:"おおい",r:"ooi",e:"many",d:"Numerous. Rarely used directly before a noun.",t:"adjective",lv:1},
+{w:"少ない",k:"すくない",r:"sukunai",e:"few",d:"Few, not many.",t:"adjective",lv:1},
+{w:"長い",k:"ながい",r:"nagai",e:"long",d:"Long in length or duration.",t:"adjective",lv:1},
+{w:"短い",k:"みじかい",r:"mijikai",e:"short",d:"Short in length or duration.",t:"adjective",lv:1},
+{w:"広い",k:"ひろい",r:"hiroi",e:"spacious",d:"Wide or roomy.",t:"adjective",lv:1},
+{w:"狭い",k:"せまい",r:"semai",e:"cramped",d:"Narrow or tight on space.",t:"adjective",lv:1},
+{w:"重い",k:"おもい",r:"omoi",e:"heavy",d:"Heavy.",t:"adjective",lv:1},
+{w:"軽い",k:"かるい",r:"karui",e:"light",d:"Light in weight.",t:"adjective",lv:1},
+{w:"強い",k:"つよい",r:"tsuyoi",e:"strong",d:"Strong or powerful.",t:"adjective",lv:1},
+{w:"弱い",k:"よわい",r:"yowai",e:"weak",d:"Weak.",t:"adjective",lv:1},
+{w:"暑い",k:"あつい",r:"atsui",e:"hot (weather)",d:"Hot weather. 熱い is a hot object.",t:"adjective",lv:1},
+{w:"寒い",k:"さむい",r:"samui",e:"cold (weather)",d:"Cold weather. 冷たい is a cold object.",t:"adjective",lv:1},
+{w:"近い",k:"ちかい",r:"chikai",e:"near",d:"Close by.",t:"adjective",lv:1},
+{w:"遠い",k:"とおい",r:"tooi",e:"far",d:"Far away.",t:"adjective",lv:1},
+{w:"美味しい",k:"おいしい",r:"oishii",e:"delicious",d:"Tasty. Usually written in kana.",t:"adjective",lv:1},
+{w:"面白い",k:"おもしろい",r:"omoshiroi",e:"interesting, funny",d:"Interesting or amusing.",t:"adjective",lv:1},
+{w:"嬉しい",k:"うれしい",r:"ureshii",e:"glad",d:"Happy about something that happened.",t:"adjective",lv:1},
+{w:"悲しい",k:"かなしい",r:"kanashii",e:"sad",d:"Sad.",t:"adjective",lv:1},
+{w:"痛い",k:"いたい",r:"itai",e:"painful",d:"It hurts.",t:"adjective",lv:1},
+{w:"眠い",k:"ねむい",r:"nemui",e:"sleepy",d:"Sleepy.",t:"adjective",lv:1},
+{w:"若い",k:"わかい",r:"wakai",e:"young",d:"Young.",t:"adjective",lv:1},
+{w:"便利",k:"べんり",r:"benri",e:"convenient",d:"Handy or useful. Na-adjective.",t:"adjective",lv:1},
+{w:"大切",k:"たいせつ",r:"taisetsu",e:"important",d:"Precious or important. Na-adjective.",t:"adjective",lv:1},
+{w:"大変",k:"たいへん",r:"taihen",e:"tough, very",d:"Hard going; also an intensifier.",t:"adjective",lv:1},
+{w:"親切",k:"しんせつ",r:"shinsetsu",e:"kind",d:"Kind and helpful. Na-adjective.",t:"adjective",lv:1},
+{w:"有名",k:"ゆうめい",r:"yuumei",e:"famous",d:"Well known. Na-adjective.",t:"adjective",lv:1},
+{w:"時々",k:"ときどき",r:"tokidoki",e:"sometimes",d:"Now and then.",t:"adverb",lv:1},
+{w:"いつも",k:"いつも",r:"itsumo",e:"always",d:"Always, every time.",t:"adverb",lv:1},
+{w:"よく",k:"よく",r:"yoku",e:"often, well",d:"Frequently, or done well.",t:"adverb",lv:1},
+{w:"ちょっと",k:"ちょっと",r:"chotto",e:"a little",d:"A bit. Also softens a refusal.",t:"adverb",lv:1},
+{w:"たくさん",k:"たくさん",r:"takusan",e:"a lot",d:"A large amount.",t:"adverb",lv:1},
+{w:"もう",k:"もう",r:"mou",e:"already",d:"Already, or 'any more' with a negative.",t:"adverb",lv:1},
+{w:"まだ",k:"まだ",r:"mada",e:"still, not yet",d:"Still ongoing, or not yet with a negative.",t:"adverb",lv:1},
+{w:"すぐ",k:"すぐ",r:"sugu",e:"right away",d:"Immediately.",t:"adverb",lv:1},
+{w:"また",k:"また",r:"mata",e:"again",d:"Again, another time.",t:"adverb",lv:1},
+{w:"全然",k:"ぜんぜん",r:"zenzen",e:"not at all",d:"Not at all. Pairs with a negative.",t:"adverb",lv:1},
+{w:"あまり",k:"あまり",r:"amari",e:"not much",d:"Not very, with a negative verb.",t:"adverb",lv:1},
+{w:"一番",k:"いちばん",r:"ichiban",e:"most, number one",d:"The most, or first place.",t:"adverb",lv:1},
+{w:"お金",k:"おかね",r:"okane",e:"money",d:"Money.",t:"noun",lv:1},
+{w:"円",k:"えん",r:"en",e:"yen",d:"The yen. Also means circle.",t:"noun",lv:1},
+{w:"色",k:"いろ",r:"iro",e:"colour",d:"A colour.",t:"noun",lv:1},
+{w:"音",k:"おと",r:"oto",e:"sound",d:"A sound or noise.",t:"noun",lv:1},
+{w:"味",k:"あじ",r:"aji",e:"flavour",d:"The taste of something.",t:"noun",lv:1},
+{w:"紙",k:"かみ",r:"kami",e:"paper",d:"Paper.",t:"noun",lv:1},
+{w:"辞書",k:"じしょ",r:"jisho",e:"dictionary",d:"A dictionary.",t:"noun",lv:1},
+{w:"新聞",k:"しんぶん",r:"shinbun",e:"newspaper",d:"A newspaper.",t:"noun",lv:1},
+{w:"宿題",k:"しゅくだい",r:"shukudai",e:"homework",d:"Homework.",t:"noun",lv:1},
+{w:"試験",k:"しけん",r:"shiken",e:"exam",d:"An examination or test.",t:"noun",lv:1},
+{w:"問題",k:"もんだい",r:"mondai",e:"problem, question",d:"A problem, or an exam question.",t:"noun",lv:1},
+{w:"机",k:"つくえ",r:"tsukue",e:"desk",d:"A desk.",t:"noun",lv:1},
+{w:"椅子",k:"いす",r:"isu",e:"chair",d:"A chair.",t:"noun",lv:1},
+{w:"時計",k:"とけい",r:"tokei",e:"clock, watch",d:"A clock or a wristwatch.",t:"noun",lv:1},
+{w:"眼鏡",k:"めがね",r:"megane",e:"glasses",d:"Spectacles. Usually written メガネ.",t:"noun",lv:1},
+{w:"帽子",k:"ぼうし",r:"boushi",e:"hat",d:"A hat or cap.",t:"noun",lv:1},
+{w:"鞄",k:"かばん",r:"kaban",e:"bag",d:"A bag or briefcase.",t:"noun",lv:1},
+{w:"箱",k:"はこ",r:"hako",e:"box",d:"A box.",t:"noun",lv:1},
+{w:"お茶",k:"おちゃ",r:"ocha",e:"tea",d:"Tea, usually green tea.",t:"noun",lv:1},
+{w:"弁当",k:"べんとう",r:"bentou",e:"packed lunch",d:"A boxed meal.",t:"noun",lv:1},
+{w:"地下鉄",k:"ちかてつ",r:"chikatetsu",e:"underground, subway",d:"The metro.",t:"noun",lv:1},
+{w:"ラーメン",k:"ラーメン",r:"raamen",e:"ramen",d:"Chinese-style noodle soup.",t:"katakana",lv:1},
+{w:"カレー",k:"カレー",r:"karee",e:"curry",d:"Japanese curry.",t:"katakana",lv:1},
+{w:"サラダ",k:"サラダ",r:"sarada",e:"salad",d:"A salad.",t:"katakana",lv:1},
+{w:"テーブル",k:"テーブル",r:"teeburu",e:"table",d:"A table.",t:"katakana",lv:1},
+{w:"ドア",k:"ドア",r:"doa",e:"door",d:"A door.",t:"katakana",lv:1},
+{w:"ベッド",k:"ベッド",r:"beddo",e:"bed",d:"A bed.",t:"katakana",lv:1},
+{w:"シャツ",k:"シャツ",r:"shatsu",e:"shirt",d:"A shirt. Tシャツ is a t-shirt.",t:"katakana",lv:1},
+{w:"クラス",k:"クラス",r:"kurasu",e:"class",d:"A class at school.",t:"katakana",lv:1},
+{w:"テスト",k:"テスト",r:"tesuto",e:"test",d:"A test.",t:"katakana",lv:1},
+{w:"パーティー",k:"パーティー",r:"paatii",e:"party",d:"A party.",t:"katakana",lv:1},
+// tier 2 - the rest of N5
+{w:"手紙",k:"てがみ",r:"tegami",e:"letter",d:"A written letter. Literally 'hand paper'.",t:"noun",lv:2},
+{w:"覚える",k:"おぼえる",r:"oboeru",e:"to memorise",d:"To learn by heart or commit to memory.",t:"verb",lv:2},
+{w:"忘れる",k:"わすれる",r:"wasureru",e:"to forget",d:"To forget, or to leave something behind.",t:"verb",lv:2},
+{w:"祖父",k:"そふ",r:"sofu",e:"grandfather",d:"Your own grandfather. Others' is おじいさん.",t:"noun",lv:2},
+{w:"祖母",k:"そぼ",r:"sobo",e:"grandmother",d:"Your own grandmother. Others' is おばあさん.",t:"noun",lv:2},
+{w:"夫",k:"おっと",r:"otto",e:"husband",d:"Your own husband. Others' is ご主人.",t:"noun",lv:2},
+{w:"妻",k:"つま",r:"tsuma",e:"wife",d:"Your own wife. Others' is 奥さん.",t:"noun",lv:2},
+{w:"息子",k:"むすこ",r:"musuko",e:"son",d:"A son.",t:"noun",lv:2},
+{w:"娘",k:"むすめ",r:"musume",e:"daughter",d:"A daughter.",t:"noun",lv:2},
+{w:"自分",k:"じぶん",r:"jibun",e:"oneself",d:"Oneself, whoever the subject is.",t:"noun",lv:2},
+{w:"鼻",k:"はな",r:"hana",e:"nose",d:"A nose. Same sound as 花, flower.",t:"noun",lv:2},
+{w:"歯",k:"は",r:"ha",e:"tooth",d:"A tooth.",t:"noun",lv:2},
+{w:"首",k:"くび",r:"kubi",e:"neck",d:"The neck.",t:"noun",lv:2},
+{w:"背",k:"せ",r:"se",e:"back, height",d:"The back of the body, or one's height.",t:"noun",lv:2},
+{w:"心",k:"こころ",r:"kokoro",e:"heart, mind",d:"The heart in the emotional sense.",t:"noun",lv:2},
+{w:"髪",k:"かみ",r:"kami",e:"hair",d:"Hair on the head.",t:"noun",lv:2},
+{w:"市",k:"し",r:"shi",e:"city",d:"A city, as an administrative unit.",t:"noun",lv:2},
+{w:"県",k:"けん",r:"ken",e:"prefecture",d:"A prefecture.",t:"noun",lv:2},
+{w:"外国",k:"がいこく",r:"gaikoku",e:"foreign country",d:"A country other than your own.",t:"noun",lv:2},
+{w:"会議",k:"かいぎ",r:"kaigi",e:"meeting",d:"A meeting or conference.",t:"noun",lv:2},
+{w:"神社",k:"じんじゃ",r:"jinja",e:"shrine",d:"A Shinto shrine.",t:"noun",lv:2},
+{w:"寺",k:"てら",r:"tera",e:"temple",d:"A Buddhist temple. Politely お寺.",t:"noun",lv:2},
+{w:"城",k:"しろ",r:"shiro",e:"castle",d:"A castle.",t:"noun",lv:2},
+{w:"温泉",k:"おんせん",r:"onsen",e:"hot spring",d:"A hot spring bath.",t:"noun",lv:2},
+{w:"橋",k:"はし",r:"hashi",e:"bridge",d:"A bridge. Same spelling as 箸, chopsticks.",t:"noun",lv:2},
+{w:"角",k:"かど",r:"kado",e:"corner",d:"A street corner.",t:"noun",lv:2},
+{w:"出す",k:"だす",r:"dasu",e:"to take out, to send",d:"To put out, hand in, or post.",t:"verb",lv:2},
+{w:"入れる",k:"いれる",r:"ireru",e:"to put in",d:"To insert or add something.",t:"verb",lv:2},
+{w:"泳ぐ",k:"およぐ",r:"oyogu",e:"to swim",d:"To swim.",t:"verb",lv:2},
+{w:"飛ぶ",k:"とぶ",r:"tobu",e:"to fly",d:"To fly or leap.",t:"verb",lv:2},
+{w:"止まる",k:"とまる",r:"tomaru",e:"to stop",d:"Something comes to a stop.",t:"verb",lv:2},
+{w:"始める",k:"はじめる",r:"hajimeru",e:"to start",d:"To start something yourself.",t:"verb",lv:2},
+{w:"続ける",k:"つづける",r:"tsuzukeru",e:"to continue",d:"To keep doing something.",t:"verb",lv:2},
+{w:"届く",k:"とどく",r:"todoku",e:"to arrive",d:"Something reaches its destination.",t:"verb",lv:2},
+{w:"呼ぶ",k:"よぶ",r:"yobu",e:"to call",d:"To call out to, or invite.",t:"verb",lv:2},
+{w:"探す",k:"さがす",r:"sagasu",e:"to look for",d:"To search for something.",t:"verb",lv:2},
+{w:"見つける",k:"みつける",r:"mitsukeru",e:"to find",d:"To find something you were after.",t:"verb",lv:2},
+{w:"選ぶ",k:"えらぶ",r:"erabu",e:"to choose",d:"To pick from options.",t:"verb",lv:2},
+{w:"決める",k:"きめる",r:"kimeru",e:"to decide",d:"To decide something.",t:"verb",lv:2},
+{w:"考える",k:"かんがえる",r:"kangaeru",e:"to think over",d:"To think deliberately. 思う is to feel.",t:"verb",lv:2},
+{w:"調べる",k:"しらべる",r:"shiraberu",e:"to look up",d:"To check or investigate.",t:"verb",lv:2},
+{w:"習う",k:"ならう",r:"narau",e:"to learn",d:"To be taught something by someone.",t:"verb",lv:2},
+{w:"置く",k:"おく",r:"oku",e:"to put",d:"To place something down.",t:"verb",lv:2},
+{w:"消す",k:"けす",r:"kesu",e:"to switch off, to erase",d:"To turn off a light, or rub out.",t:"verb",lv:2},
+{w:"洗う",k:"あらう",r:"arau",e:"to wash",d:"To wash.",t:"verb",lv:2},
+{w:"履く",k:"はく",r:"haku",e:"to wear (below waist)",d:"To put on shoes, socks or trousers.",t:"verb",lv:2},
+{w:"脱ぐ",k:"ぬぐ",r:"nugu",e:"to take off",d:"To remove clothing or shoes.",t:"verb",lv:2},
+{w:"貸す",k:"かす",r:"kasu",e:"to lend",d:"To lend something out.",t:"verb",lv:2},
+{w:"借りる",k:"かりる",r:"kariru",e:"to borrow",d:"To borrow or rent.",t:"verb",lv:2},
+{w:"返す",k:"かえす",r:"kaesu",e:"to return",d:"To give something back.",t:"verb",lv:2},
+{w:"払う",k:"はらう",r:"harau",e:"to pay",d:"To pay money.",t:"verb",lv:2},
+{w:"売る",k:"うる",r:"uru",e:"to sell",d:"To sell.",t:"verb",lv:2},
+{w:"手伝う",k:"てつだう",r:"tetsudau",e:"to help",d:"To help with a task.",t:"verb",lv:2},
+{w:"頼む",k:"たのむ",r:"tanomu",e:"to request",d:"To ask a favour, or order food.",t:"verb",lv:2},
+{w:"泣く",k:"なく",r:"naku",e:"to cry",d:"To weep.",t:"verb",lv:2},
+{w:"笑う",k:"わらう",r:"warau",e:"to laugh",d:"To laugh or smile.",t:"verb",lv:2},
+{w:"困る",k:"こまる",r:"komaru",e:"to be troubled",d:"To be at a loss or in difficulty.",t:"verb",lv:2},
+{w:"疲れる",k:"つかれる",r:"tsukareru",e:"to get tired",d:"To become tired. Usually 疲れた.",t:"verb",lv:2},
+{w:"生まれる",k:"うまれる",r:"umareru",e:"to be born",d:"To be born.",t:"verb",lv:2},
+{w:"死ぬ",k:"しぬ",r:"shinu",e:"to die",d:"To die. The only verb ending in ぬ.",t:"verb",lv:2},
+{w:"通う",k:"かよう",r:"kayou",e:"to commute",d:"To go somewhere regularly.",t:"verb",lv:2},
+{w:"踊る",k:"おどる",r:"odoru",e:"to dance",d:"To dance.",t:"verb",lv:2},
+{w:"撮る",k:"とる",r:"toru",e:"to take (a photo)",d:"To photograph or film.",t:"verb",lv:2},
+{w:"並ぶ",k:"ならぶ",r:"narabu",e:"to line up",d:"To queue or stand in a row.",t:"verb",lv:2},
+{w:"曲がる",k:"まがる",r:"magaru",e:"to turn",d:"To turn a corner.",t:"verb",lv:2},
+{w:"渡る",k:"わたる",r:"wataru",e:"to cross",d:"To cross a road or bridge.",t:"verb",lv:2},
+{w:"急ぐ",k:"いそぐ",r:"isogu",e:"to hurry",d:"To rush.",t:"verb",lv:2},
+{w:"間に合う",k:"まにあう",r:"maniau",e:"to be in time",d:"To make it before the deadline.",t:"verb",lv:2},
+{w:"遅れる",k:"おくれる",r:"okureru",e:"to be late",d:"To fall behind schedule.",t:"verb",lv:2},
+{w:"直す",k:"なおす",r:"naosu",e:"to fix",d:"To repair or correct.",t:"verb",lv:2},
+{w:"壊れる",k:"こわれる",r:"kowareru",e:"to break",d:"Something breaks by itself.",t:"verb",lv:2},
+{w:"落とす",k:"おとす",r:"otosu",e:"to drop",d:"To drop something.",t:"verb",lv:2},
+{w:"熱い",k:"あつい",r:"atsui",e:"hot (to touch)",d:"Hot to the touch. 暑い is hot weather.",t:"adjective",lv:2},
+{w:"冷たい",k:"つめたい",r:"tsumetai",e:"cold (to touch)",d:"Cold to the touch; also cold-hearted.",t:"adjective",lv:2},
+{w:"暖かい",k:"あたたかい",r:"atatakai",e:"warm",d:"Pleasantly warm.",t:"adjective",lv:2},
+{w:"涼しい",k:"すずしい",r:"suzushii",e:"cool",d:"Pleasantly cool.",t:"adjective",lv:2},
+{w:"明るい",k:"あかるい",r:"akarui",e:"bright",d:"Bright; also cheerful of a person.",t:"adjective",lv:2},
+{w:"暗い",k:"くらい",r:"kurai",e:"dark",d:"Dark; also gloomy of a mood.",t:"adjective",lv:2},
+{w:"太い",k:"ふとい",r:"futoi",e:"thick",d:"Thick or wide around.",t:"adjective",lv:2},
+{w:"細い",k:"ほそい",r:"hosoi",e:"thin",d:"Slender or narrow.",t:"adjective",lv:2},
+{w:"甘い",k:"あまい",r:"amai",e:"sweet",d:"Sweet; also lenient.",t:"adjective",lv:2},
+{w:"辛い",k:"からい",r:"karai",e:"spicy",d:"Hot with chilli or salt.",t:"adjective",lv:2},
+{w:"苦い",k:"にがい",r:"nigai",e:"bitter",d:"Bitter.",t:"adjective",lv:2},
+{w:"汚い",k:"きたない",r:"kitanai",e:"dirty",d:"Dirty or messy. Opposite of 綺麗.",t:"adjective",lv:2},
+{w:"怖い",k:"こわい",r:"kowai",e:"scary",d:"Frightening, or frightened.",t:"adjective",lv:2},
+{w:"寂しい",k:"さびしい",r:"sabishii",e:"lonely",d:"Lonely.",t:"adjective",lv:2},
+{w:"危ない",k:"あぶない",r:"abunai",e:"dangerous",d:"Dangerous. Shouted, it means 'look out'.",t:"adjective",lv:2},
+{w:"優しい",k:"やさしい",r:"yasashii",e:"gentle",d:"Kind and gentle.",t:"adjective",lv:2},
+{w:"厳しい",k:"きびしい",r:"kibishii",e:"strict",d:"Strict or harsh.",t:"adjective",lv:2},
+{w:"珍しい",k:"めずらしい",r:"mezurashii",e:"rare",d:"Unusual, rarely seen.",t:"adjective",lv:2},
+{w:"つまらない",k:"つまらない",r:"tsumaranai",e:"boring",d:"Dull. Opposite of 面白い.",t:"adjective",lv:2},
+{w:"不便",k:"ふべん",r:"fuben",e:"inconvenient",d:"Awkward to use or reach. Na-adjective.",t:"adjective",lv:2},
+{w:"自由",k:"じゆう",r:"jiyuu",e:"free",d:"Free to do as you like. Na-adjective.",t:"adjective",lv:2},
+{w:"安全",k:"あんぜん",r:"anzen",e:"safe",d:"Safe. Na-adjective.",t:"adjective",lv:2},
+{w:"必要",k:"ひつよう",r:"hitsuyou",e:"necessary",d:"Needed. Na-adjective.",t:"adjective",lv:2},
+{w:"残念",k:"ざんねん",r:"zannen",e:"a shame",d:"Regrettable, disappointing.",t:"adjective",lv:2},
+{w:"素敵",k:"すてき",r:"suteki",e:"lovely",d:"Wonderful or stylish. Na-adjective.",t:"adjective",lv:2},
+{w:"真面目",k:"まじめ",r:"majime",e:"serious",d:"Earnest and diligent. Na-adjective.",t:"adjective",lv:2},
+{w:"賑やか",k:"にぎやか",r:"nigiyaka",e:"lively",d:"Bustling and full of life. Na-adjective.",t:"adjective",lv:2},
+{w:"心配",k:"しんぱい",r:"shinpai",e:"worry",d:"Anxiety. 心配する to worry.",t:"noun",lv:2},
+{w:"鉛筆",k:"えんぴつ",r:"enpitsu",e:"pencil",d:"A pencil.",t:"noun",lv:2},
+{w:"雑誌",k:"ざっし",r:"zasshi",e:"magazine",d:"A magazine.",t:"noun",lv:2},
+{w:"授業",k:"じゅぎょう",r:"jugyou",e:"lesson",d:"A class or lesson.",t:"noun",lv:2},
+{w:"冷蔵庫",k:"れいぞうこ",r:"reizouko",e:"fridge",d:"A refrigerator.",t:"noun",lv:2},
+{w:"電気",k:"でんき",r:"denki",e:"electricity, light",d:"Electricity, or the room light.",t:"noun",lv:2},
+{w:"風呂",k:"ふろ",r:"furo",e:"bath",d:"A bath. Politely お風呂.",t:"noun",lv:2},
+{w:"布団",k:"ふとん",r:"futon",e:"futon",d:"Japanese bedding laid on the floor.",t:"noun",lv:2},
+{w:"鏡",k:"かがみ",r:"kagami",e:"mirror",d:"A mirror.",t:"noun",lv:2},
+{w:"皿",k:"さら",r:"sara",e:"plate",d:"A plate or dish. Politely お皿.",t:"noun",lv:2},
+{w:"箸",k:"はし",r:"hashi",e:"chopsticks",d:"Chopsticks. Politely お箸.",t:"noun",lv:2},
+{w:"塩",k:"しお",r:"shio",e:"salt",d:"Salt.",t:"noun",lv:2},
+{w:"砂糖",k:"さとう",r:"satou",e:"sugar",d:"Sugar.",t:"noun",lv:2},
+{w:"醤油",k:"しょうゆ",r:"shouyu",e:"soy sauce",d:"Soy sauce.",t:"noun",lv:2},
+{w:"酒",k:"さけ",r:"sake",e:"alcohol",d:"Alcohol generally; お酒 in polite use.",t:"noun",lv:2},
+{w:"朝ご飯",k:"あさごはん",r:"asagohan",e:"breakfast",d:"The morning meal.",t:"noun",lv:2},
+{w:"昼ご飯",k:"ひるごはん",r:"hirugohan",e:"lunch",d:"The midday meal.",t:"noun",lv:2},
+{w:"晩ご飯",k:"ばんごはん",r:"bangohan",e:"dinner",d:"The evening meal.",t:"noun",lv:2},
+{w:"匂い",k:"におい",r:"nioi",e:"smell",d:"A smell or scent.",t:"noun",lv:2},
+{w:"値段",k:"ねだん",r:"nedan",e:"price",d:"The price of something.",t:"noun",lv:2},
+{w:"切手",k:"きって",r:"kitte",e:"stamp",d:"A postage stamp.",t:"noun",lv:2},
+{w:"葉書",k:"はがき",r:"hagaki",e:"postcard",d:"A postcard.",t:"noun",lv:2},
+{w:"住所",k:"じゅうしょ",r:"juusho",e:"address",d:"A postal address.",t:"noun",lv:2},
+{w:"番号",k:"ばんごう",r:"bangou",e:"number",d:"A reference number, such as a phone number.",t:"noun",lv:2},
+{w:"新幹線",k:"しんかんせん",r:"shinkansen",e:"bullet train",d:"The high-speed rail network.",t:"noun",lv:2},
+{w:"船",k:"ふね",r:"fune",e:"boat",d:"A boat or ship.",t:"noun",lv:2},
+{w:"星",k:"ほし",r:"hoshi",e:"star",d:"A star.",t:"noun",lv:2},
+{w:"雲",k:"くも",r:"kumo",e:"cloud",d:"A cloud.",t:"noun",lv:2},
+{w:"森",k:"もり",r:"mori",e:"forest",d:"A wood or forest.",t:"noun",lv:2},
+{w:"池",k:"いけ",r:"ike",e:"pond",d:"A pond.",t:"noun",lv:2},
+{w:"湖",k:"みずうみ",r:"mizuumi",e:"lake",d:"A lake.",t:"noun",lv:2},
+{w:"島",k:"しま",r:"shima",e:"island",d:"An island.",t:"noun",lv:2},
+{w:"石",k:"いし",r:"ishi",e:"stone",d:"A stone.",t:"noun",lv:2},
+{w:"虫",k:"むし",r:"mushi",e:"insect",d:"An insect or bug.",t:"noun",lv:2},
+{w:"鳥",k:"とり",r:"tori",e:"bird",d:"A bird; also chicken as meat.",t:"noun",lv:2},
+{w:"馬",k:"うま",r:"uma",e:"horse",d:"A horse.",t:"noun",lv:2},
+{w:"牛",k:"うし",r:"ushi",e:"cow",d:"A cow.",t:"noun",lv:2},
+{w:"サンドイッチ",k:"サンドイッチ",r:"sandoicchi",e:"sandwich",d:"A sandwich.",t:"katakana",lv:2},
+{w:"チーズ",k:"チーズ",r:"chiizu",e:"cheese",d:"Cheese.",t:"katakana",lv:2},
+{w:"バター",k:"バター",r:"bataa",e:"butter",d:"Butter.",t:"katakana",lv:2},
+{w:"チョコレート",k:"チョコレート",r:"chokoreeto",e:"chocolate",d:"Chocolate.",t:"katakana",lv:2},
+{w:"ワイン",k:"ワイン",r:"wain",e:"wine",d:"Wine.",t:"katakana",lv:2},
+{w:"メニュー",k:"メニュー",r:"menyuu",e:"menu",d:"A menu.",t:"katakana",lv:2},
+{w:"エアコン",k:"エアコン",r:"eakon",e:"air conditioner",d:"Air conditioning.",t:"katakana",lv:2},
+{w:"カーテン",k:"カーテン",r:"kaaten",e:"curtain",d:"A curtain.",t:"katakana",lv:2},
+{w:"ボタン",k:"ボタン",r:"botan",e:"button",d:"A button, on clothing or a machine.",t:"katakana",lv:2},
+{w:"ズボン",k:"ズボン",r:"zubon",e:"trousers",d:"Trousers. From French jupon.",t:"katakana",lv:2},
+{w:"コート",k:"コート",r:"kooto",e:"coat",d:"A coat.",t:"katakana",lv:2},
+{w:"セーター",k:"セーター",r:"seetaa",e:"jumper",d:"A sweater.",t:"katakana",lv:2},
+{w:"タオル",k:"タオル",r:"taoru",e:"towel",d:"A towel.",t:"katakana",lv:2},
+{w:"レポート",k:"レポート",r:"repooto",e:"report",d:"A written report or essay.",t:"katakana",lv:2},
+{w:"スケジュール",k:"スケジュール",r:"sukejuuru",e:"schedule",d:"A schedule.",t:"katakana",lv:2},
+{w:"コンサート",k:"コンサート",r:"konsaato",e:"concert",d:"A concert.",t:"katakana",lv:2},
+{w:"ギター",k:"ギター",r:"gitaa",e:"guitar",d:"A guitar.",t:"katakana",lv:2},
+{w:"ピアノ",k:"ピアノ",r:"piano",e:"piano",d:"A piano.",t:"katakana",lv:2},
+{w:"テニス",k:"テニス",r:"tenisu",e:"tennis",d:"Tennis.",t:"katakana",lv:2},
+{w:"ペット",k:"ペット",r:"petto",e:"pet",d:"A pet animal.",t:"katakana",lv:2},
+// tier 3 - N4 spillover
+{w:"週末",k:"しゅうまつ",r:"shuumatsu",e:"weekend",d:"The weekend.",t:"noun",lv:3},
+{w:"自転車",k:"じてんしゃ",r:"jitensha",e:"bicycle",d:"A bicycle. Literally 'self-turn vehicle'.",t:"noun",lv:3},
+{w:"飛行機",k:"ひこうき",r:"hikouki",e:"aeroplane",d:"An aeroplane.",t:"noun",lv:3},
+{w:"銀行",k:"ぎんこう",r:"ginkou",e:"bank",d:"A bank. Literally 'silver shop'.",t:"noun",lv:3},
+{w:"病院",k:"びょういん",r:"byouin",e:"hospital",d:"A hospital or clinic.",t:"noun",lv:3},
+{w:"郵便局",k:"ゆうびんきょく",r:"yuubinkyoku",e:"post office",d:"The post office.",t:"noun",lv:3},
+{w:"図書館",k:"としょかん",r:"toshokan",e:"library",d:"A library.",t:"noun",lv:3},
+{w:"窓",k:"まど",r:"mado",e:"window",d:"A window.",t:"noun",lv:3},
+{w:"台所",k:"だいどころ",r:"daidokoro",e:"kitchen",d:"A kitchen. キッチン is the common loanword.",t:"noun",lv:3},
+{w:"言葉",k:"ことば",r:"kotoba",e:"word, language",d:"A word, or language as a whole.",t:"noun",lv:3},
+{w:"意味",k:"いみ",r:"imi",e:"meaning",d:"Meaning. どういう意味 asks 'what does that mean?'",t:"noun",lv:3},
+{w:"質問",k:"しつもん",r:"shitsumon",e:"question",d:"A question you ask someone.",t:"noun",lv:3},
+{w:"答え",k:"こたえ",r:"kotae",e:"answer",d:"An answer or solution.",t:"noun",lv:3},
+{w:"練習",k:"れんしゅう",r:"renshuu",e:"practice",d:"Practice or training. 練習する to practise.",t:"noun",lv:3},
+{w:"旅行",k:"りょこう",r:"ryokou",e:"trip, travel",d:"A trip or journey. 旅行する to travel.",t:"noun",lv:3},
+{w:"写真",k:"しゃしん",r:"shashin",e:"photograph",d:"A photo. 写真を撮る is to take one.",t:"noun",lv:3},
+{w:"音楽",k:"おんがく",r:"ongaku",e:"music",d:"Music.",t:"noun",lv:3},
+{w:"映画",k:"えいが",r:"eiga",e:"film, movie",d:"A film. 映画館 is a cinema.",t:"noun",lv:3},
+{w:"料理",k:"りょうり",r:"ryouri",e:"cooking, a dish",d:"Cooking, or a prepared dish or cuisine.",t:"noun",lv:3},
+{w:"野菜",k:"やさい",r:"yasai",e:"vegetables",d:"Vegetables.",t:"noun",lv:3},
+{w:"果物",k:"くだもの",r:"kudamono",e:"fruit",d:"Fruit. Irregular reading worth memorising.",t:"noun",lv:3},
+{w:"米",k:"こめ",r:"kome",e:"rice (uncooked)",d:"Raw rice grain, before it is cooked.",t:"noun",lv:3},
+{w:"牛乳",k:"ぎゅうにゅう",r:"gyuunyuu",e:"milk",d:"Cow's milk. ミルク also appears on menus.",t:"noun",lv:3},
+{w:"財布",k:"さいふ",r:"saifu",e:"wallet, purse",d:"A wallet or purse.",t:"noun",lv:3},
+{w:"鍵",k:"かぎ",r:"kagi",e:"key, lock",d:"A key, or the lock it fits.",t:"noun",lv:3},
+{w:"傘",k:"かさ",r:"kasa",e:"umbrella",d:"An umbrella.",t:"noun",lv:3},
+{w:"雪",k:"ゆき",r:"yuki",e:"snow",d:"Snow.",t:"noun",lv:3},
+{w:"風",k:"かぜ",r:"kaze",e:"wind",d:"Wind. Same sound as 風邪, a cold.",t:"noun",lv:3},
+{w:"空港",k:"くうこう",r:"kuukou",e:"airport",d:"An airport.",t:"noun",lv:3},
+{w:"地図",k:"ちず",r:"chizu",e:"map",d:"A map.",t:"noun",lv:3},
+{w:"切符",k:"きっぷ",r:"kippu",e:"ticket",d:"A ticket for a train or bus.",t:"noun",lv:3},
+{w:"荷物",k:"にもつ",r:"nimotsu",e:"luggage, baggage",d:"Luggage or a parcel you are carrying.",t:"noun",lv:3},
+{w:"約束",k:"やくそく",r:"yakusoku",e:"promise, plans",d:"A promise, or an arrangement to meet.",t:"noun",lv:3},
+{w:"準備",k:"じゅんび",r:"junbi",e:"preparation",d:"Preparation. 準備する to get ready.",t:"noun",lv:3},
+{w:"説明",k:"せつめい",r:"setsumei",e:"explanation",d:"An explanation. 説明する to explain.",t:"noun",lv:3},
+{w:"無理",k:"むり",r:"muri",e:"impossible, too much",d:"Not doable. 無理です politely declines something.",t:"adjective",lv:3},
+{w:"多分",k:"たぶん",r:"tabun",e:"probably, maybe",d:"Probably. Often paired with でしょう.",t:"adverb",lv:3},
+{w:"アルバイト",k:"アルバイト",r:"arubaito",e:"part-time job",d:"A part-time job, from German Arbeit. Often バイト.",t:"katakana",lv:3},
+{w:"エレベーター",k:"エレベーター",r:"erebeetaa",e:"lift, elevator",d:"A lift. エスカレーター is an escalator.",t:"katakana",lv:3},
+{w:"チケット",k:"チケット",r:"chiketto",e:"ticket",d:"A ticket for an event. Transport tickets are 切符.",t:"katakana",lv:3},
+{w:"カメラ",k:"カメラ",r:"kamera",e:"camera",d:"A camera.",t:"katakana",lv:3},
+{w:"スポーツ",k:"スポーツ",r:"supootsu",e:"sport",d:"Sport or sports.",t:"katakana",lv:3},
+{w:"サッカー",k:"サッカー",r:"sakkaa",e:"football, soccer",d:"Football. Note the small ッ for the double consonant.",t:"katakana",lv:3},
+{w:"プール",k:"プール",r:"puuru",e:"swimming pool",d:"A swimming pool.",t:"katakana",lv:3},
+{w:"シャワー",k:"シャワー",r:"shawaa",e:"shower",d:"A shower. シャワーを浴びる to take one.",t:"katakana",lv:3},
+{w:"ビール",k:"ビール",r:"biiru",e:"beer",d:"Beer. From Dutch bier.",t:"katakana",lv:3},
+{w:"ジュース",k:"ジュース",r:"juusu",e:"juice",d:"Juice — often any cold soft drink.",t:"katakana",lv:3},
+{w:"ケーキ",k:"ケーキ",r:"keeki",e:"cake",d:"Cake.",t:"katakana",lv:3},
+{w:"スーパー",k:"スーパー",r:"suupaa",e:"supermarket",d:"A supermarket, clipped from スーパーマーケット.",t:"katakana",lv:3},
+{w:"デパート",k:"デパート",r:"depaato",e:"department store",d:"A department store.",t:"katakana",lv:3},
+{w:"カード",k:"カード",r:"kaado",e:"card",d:"A card — bank card, IC card, greetings card.",t:"katakana",lv:3},
+{w:"メール",k:"メール",r:"meeru",e:"email, message",d:"Email or a text message.",t:"katakana",lv:3},
+{w:"ニュース",k:"ニュース",r:"nyuusu",e:"news",d:"The news.",t:"katakana",lv:3},
+{w:"経験",k:"けいけん",r:"keiken",e:"experience",d:"Experience of doing something.",t:"noun",lv:3},
+{w:"理由",k:"りゆう",r:"riyuu",e:"reason",d:"The reason for something.",t:"noun",lv:3},
+{w:"関係",k:"かんけい",r:"kankei",e:"relationship",d:"A relationship or connection.",t:"noun",lv:3},
+{w:"場所",k:"ばしょ",r:"basho",e:"place",d:"A place or location.",t:"noun",lv:3},
+{w:"場合",k:"ばあい",r:"baai",e:"case, situation",d:"In the case that something applies.",t:"noun",lv:3},
+{w:"予定",k:"よてい",r:"yotei",e:"plan, schedule",d:"A planned arrangement.",t:"noun",lv:3},
+{w:"用事",k:"ようじ",r:"youji",e:"errand",d:"Something you have to attend to.",t:"noun",lv:3},
+{w:"都合",k:"つごう",r:"tsugou",e:"convenience",d:"Whether a time suits you.",t:"noun",lv:3},
+{w:"趣味",k:"しゅみ",r:"shumi",e:"hobby",d:"A hobby or pastime.",t:"noun",lv:3},
+{w:"性格",k:"せいかく",r:"seikaku",e:"personality",d:"Someone's character.",t:"noun",lv:3},
+{w:"気持ち",k:"きもち",r:"kimochi",e:"feeling",d:"How you feel.",t:"noun",lv:3},
+{w:"気分",k:"きぶん",r:"kibun",e:"mood",d:"Your mood or physical state.",t:"noun",lv:3},
+{w:"夢",k:"ゆめ",r:"yume",e:"dream",d:"A dream, asleep or aspirational.",t:"noun",lv:3},
+{w:"記憶",k:"きおく",r:"kioku",e:"memory",d:"Memory as a faculty.",t:"noun",lv:3},
+{w:"習慣",k:"しゅうかん",r:"shuukan",e:"habit, custom",d:"A habit or a social custom.",t:"noun",lv:3},
+{w:"文化",k:"ぶんか",r:"bunka",e:"culture",d:"Culture.",t:"noun",lv:3},
+{w:"社会",k:"しゃかい",r:"shakai",e:"society",d:"Society.",t:"noun",lv:3},
+{w:"政治",k:"せいじ",r:"seiji",e:"politics",d:"Politics.",t:"noun",lv:3},
+{w:"経済",k:"けいざい",r:"keizai",e:"economy",d:"The economy.",t:"noun",lv:3},
+{w:"歴史",k:"れきし",r:"rekishi",e:"history",d:"History.",t:"noun",lv:3},
+{w:"科学",k:"かがく",r:"kagaku",e:"science",d:"Science.",t:"noun",lv:3},
+{w:"技術",k:"ぎじゅつ",r:"gijutsu",e:"technology, skill",d:"Technology or technical skill.",t:"noun",lv:3},
+{w:"研究",k:"けんきゅう",r:"kenkyuu",e:"research",d:"Research. 研究する to research.",t:"noun",lv:3},
+{w:"経営",k:"けいえい",r:"keiei",e:"management",d:"Running a business.",t:"noun",lv:3},
+{w:"会員",k:"かいいん",r:"kaiin",e:"member",d:"A member of an organisation.",t:"noun",lv:3},
+{w:"部長",k:"ぶちょう",r:"buchou",e:"department head",d:"A department manager.",t:"noun",lv:3},
+{w:"社員",k:"しゃいん",r:"shain",e:"employee",d:"A company employee.",t:"noun",lv:3},
+{w:"給料",k:"きゅうりょう",r:"kyuuryou",e:"salary",d:"Wages or salary.",t:"noun",lv:3},
+{w:"面接",k:"めんせつ",r:"mensetsu",e:"interview",d:"A job interview.",t:"noun",lv:3},
+{w:"作業",k:"さぎょう",r:"sagyou",e:"work, task",d:"A concrete piece of work.",t:"noun",lv:3},
+{w:"結果",k:"けっか",r:"kekka",e:"result",d:"The outcome of something.",t:"noun",lv:3},
+{w:"原因",k:"げんいん",r:"gen'in",e:"cause",d:"The cause of a problem.",t:"noun",lv:3},
+{w:"方法",k:"ほうほう",r:"houhou",e:"method",d:"A way of doing something.",t:"noun",lv:3},
+{w:"目的",k:"もくてき",r:"mokuteki",e:"purpose",d:"The aim of an action.",t:"noun",lv:3},
+{w:"注意",k:"ちゅうい",r:"chuui",e:"caution",d:"Care or a warning. 注意する to warn.",t:"noun",lv:3},
+{w:"危険",k:"きけん",r:"kiken",e:"danger",d:"Danger. Na-adjective too.",t:"noun",lv:3},
+{w:"規則",k:"きそく",r:"kisoku",e:"rule",d:"A rule or regulation.",t:"noun",lv:3},
+{w:"許可",k:"きょか",r:"kyoka",e:"permission",d:"Official permission.",t:"noun",lv:3},
+{w:"予約",k:"よやく",r:"yoyaku",e:"reservation",d:"A booking. 予約する to book.",t:"noun",lv:3},
+{w:"申し込み",k:"もうしこみ",r:"moushikomi",e:"application",d:"An application or sign-up.",t:"noun",lv:3},
+{w:"受付",k:"うけつけ",r:"uketsuke",e:"reception",d:"A reception desk.",t:"noun",lv:3},
+{w:"案内",k:"あんない",r:"annai",e:"guidance",d:"Showing someone the way.",t:"noun",lv:3},
+{w:"紹介",k:"しょうかい",r:"shoukai",e:"introduction",d:"Introducing one person to another.",t:"noun",lv:3},
+{w:"連絡",k:"れんらく",r:"renraku",e:"contact",d:"Getting in touch. 連絡する to contact.",t:"noun",lv:3},
+{w:"相談",k:"そうだん",r:"soudan",e:"consultation",d:"Talking something over with someone.",t:"noun",lv:3},
+{w:"意見",k:"いけん",r:"iken",e:"opinion",d:"An opinion.",t:"noun",lv:3},
+{w:"感じ",k:"かんじ",r:"kanji",e:"impression",d:"The feel or impression of something.",t:"noun",lv:3},
+{w:"様子",k:"ようす",r:"yousu",e:"appearance, state",d:"How something looks or is going.",t:"noun",lv:3},
+{w:"違い",k:"ちがい",r:"chigai",e:"difference",d:"A difference between things.",t:"noun",lv:3},
+{w:"以上",k:"いじょう",r:"ijou",e:"or more",d:"That amount or above.",t:"noun",lv:3},
+{w:"以下",k:"いか",r:"ika",e:"or less",d:"That amount or below.",t:"noun",lv:3},
+{w:"最近",k:"さいきん",r:"saikin",e:"recently",d:"Lately.",t:"adverb",lv:3},
+{w:"最初",k:"さいしょ",r:"saisho",e:"the first",d:"The beginning.",t:"noun",lv:3},
+{w:"最後",k:"さいご",r:"saigo",e:"the last",d:"The end or final one.",t:"noun",lv:3},
+{w:"将来",k:"しょうらい",r:"shourai",e:"the future",d:"Someone's future.",t:"noun",lv:3},
+{w:"途中",k:"とちゅう",r:"tochuu",e:"on the way",d:"Partway through.",t:"noun",lv:3},
+{w:"直接",k:"ちょくせつ",r:"chokusetsu",e:"directly",d:"Without anything in between.",t:"adverb",lv:3},
+{w:"必ず",k:"かならず",r:"kanarazu",e:"without fail",d:"Certainly, always.",t:"adverb",lv:3},
+{w:"きっと",k:"きっと",r:"kitto",e:"surely",d:"I'm sure that.",t:"adverb",lv:3},
+{w:"例えば",k:"たとえば",r:"tatoeba",e:"for example",d:"For instance.",t:"adverb",lv:3},
+{w:"特に",k:"とくに",r:"tokuni",e:"especially",d:"Particularly.",t:"adverb",lv:3},
+{w:"実は",k:"じつは",r:"jitsuwa",e:"actually",d:"To tell the truth.",t:"adverb",lv:3},
+{w:"やっぱり",k:"やっぱり",r:"yappari",e:"as expected",d:"Just as I thought.",t:"adverb",lv:3},
+{w:"なるべく",k:"なるべく",r:"narubeku",e:"as much as possible",d:"If you can.",t:"adverb",lv:3},
+{w:"急に",k:"きゅうに",r:"kyuuni",e:"suddenly",d:"All at once.",t:"adverb",lv:3},
+{w:"偶然",k:"ぐうぜん",r:"guuzen",e:"by chance",d:"Coincidentally.",t:"adverb",lv:3},
+{w:"説明する",k:"せつめいする",r:"setsumei suru",e:"to explain",d:"To explain something.",t:"verb",lv:3},
+{w:"確認する",k:"かくにんする",r:"kakunin suru",e:"to confirm",d:"To check something is right.",t:"verb",lv:3},
+{w:"報告する",k:"ほうこくする",r:"houkoku suru",e:"to report",d:"To report back.",t:"verb",lv:3},
+{w:"比べる",k:"くらべる",r:"kuraberu",e:"to compare",d:"To compare two things.",t:"verb",lv:3},
+{w:"増える",k:"ふえる",r:"fueru",e:"to increase",d:"Something grows in number.",t:"verb",lv:3},
+{w:"減る",k:"へる",r:"heru",e:"to decrease",d:"Something falls in number.",t:"verb",lv:3},
+{w:"変わる",k:"かわる",r:"kawaru",e:"to change",d:"Something changes by itself.",t:"verb",lv:3},
+{w:"変える",k:"かえる",r:"kaeru",e:"to change something",d:"To alter something yourself.",t:"verb",lv:3},
+{w:"続く",k:"つづく",r:"tsuzuku",e:"to continue",d:"Something carries on.",t:"verb",lv:3},
+{w:"進む",k:"すすむ",r:"susumu",e:"to advance",d:"To move forward or make progress.",t:"verb",lv:3},
+{w:"戻る",k:"もどる",r:"modoru",e:"to go back",d:"To return to a previous place.",t:"verb",lv:3},
+{w:"残る",k:"のこる",r:"nokoru",e:"to remain",d:"To be left over.",t:"verb",lv:3},
+{w:"集まる",k:"あつまる",r:"atsumaru",e:"to gather",d:"People or things come together.",t:"verb",lv:3},
+{w:"集める",k:"あつめる",r:"atsumeru",e:"to collect",d:"To gather things yourself.",t:"verb",lv:3},
+{w:"分ける",k:"わける",r:"wakeru",e:"to divide",d:"To split into parts.",t:"verb",lv:3},
+{w:"片付ける",k:"かたづける",r:"katazukeru",e:"to tidy up",d:"To clear away.",t:"verb",lv:3},
+{w:"用意する",k:"よういする",r:"youi suru",e:"to prepare",d:"To get things ready.",t:"verb",lv:3},
+{w:"間違える",k:"まちがえる",r:"machigaeru",e:"to make a mistake",d:"To get something wrong.",t:"verb",lv:3},
+{w:"気をつける",k:"きをつける",r:"ki wo tsukeru",e:"to be careful",d:"To take care.",t:"verb",lv:3},
+{w:"慣れる",k:"なれる",r:"nareru",e:"to get used to",d:"To become accustomed. Takes に.",t:"verb",lv:3},
+{w:"諦める",k:"あきらめる",r:"akirameru",e:"to give up",d:"To abandon an attempt.",t:"verb",lv:3},
+{w:"頑張る",k:"がんばる",r:"ganbaru",e:"to do one's best",d:"To persevere. 頑張って is 'good luck'.",t:"verb",lv:3},
+{w:"助ける",k:"たすける",r:"tasukeru",e:"to rescue",d:"To save or help someone out.",t:"verb",lv:3},
+{w:"誘う",k:"さそう",r:"sasou",e:"to invite",d:"To ask someone to join you.",t:"verb",lv:3},
+{w:"断る",k:"ことわる",r:"kotowaru",e:"to refuse",d:"To decline politely.",t:"verb",lv:3},
+{w:"謝る",k:"あやまる",r:"ayamaru",e:"to apologise",d:"To say sorry.",t:"verb",lv:3},
+{w:"褒める",k:"ほめる",r:"homeru",e:"to praise",d:"To compliment someone.",t:"verb",lv:3},
+{w:"叱る",k:"しかる",r:"shikaru",e:"to scold",d:"To tell someone off.",t:"verb",lv:3},
+{w:"驚く",k:"おどろく",r:"odoroku",e:"to be surprised",d:"To be startled.",t:"verb",lv:3},
+{w:"喜ぶ",k:"よろこぶ",r:"yorokobu",e:"to be delighted",d:"To be pleased.",t:"verb",lv:3},
+{w:"怒る",k:"おこる",r:"okoru",e:"to get angry",d:"To become angry.",t:"verb",lv:3},
+{w:"信じる",k:"しんじる",r:"shinjiru",e:"to believe",d:"To believe or trust.",t:"verb",lv:3},
+{w:"感じる",k:"かんじる",r:"kanjiru",e:"to feel",d:"To sense or feel something.",t:"verb",lv:3},
+{w:"迷う",k:"まよう",r:"mayou",e:"to get lost, to waver",d:"To lose your way, or be undecided.",t:"verb",lv:3},
+{w:"空く",k:"すく",r:"suku",e:"to become empty",d:"To empty out. お腹が空く is to get hungry.",t:"verb",lv:3},
+{w:"込む",k:"こむ",r:"komu",e:"to be crowded",d:"To be packed. Usually 込んでいる.",t:"verb",lv:3},
+{w:"似る",k:"にる",r:"niru",e:"to resemble",d:"To look like. Usually 似ている.",t:"verb",lv:3},
+{w:"優れる",k:"すぐれる",r:"sugureru",e:"to excel",d:"To be superior. Usually 優れている.",t:"verb",lv:3},
+{w:"正しい",k:"ただしい",r:"tadashii",e:"correct",d:"Right or accurate.",t:"adjective",lv:3},
+{w:"正確",k:"せいかく",r:"seikaku",e:"precise",d:"Accurate. Na-adjective.",t:"adjective",lv:3},
+{w:"確か",k:"たしか",r:"tashika",e:"certain",d:"Sure; as an adverb, 'if I remember right'.",t:"adjective",lv:3},
+{w:"詳しい",k:"くわしい",r:"kuwashii",e:"detailed",d:"In depth, or knowledgeable about.",t:"adjective",lv:3},
+{w:"深い",k:"ふかい",r:"fukai",e:"deep",d:"Deep.",t:"adjective",lv:3},
+{w:"浅い",k:"あさい",r:"asai",e:"shallow",d:"Shallow.",t:"adjective",lv:3},
+{w:"激しい",k:"はげしい",r:"hageshii",e:"intense",d:"Violent or fierce.",t:"adjective",lv:3},
+{w:"楽",k:"らく",r:"raku",e:"comfortable, easy",d:"Free of strain. Na-adjective.",t:"adjective",lv:3},
+{w:"十分",k:"じゅうぶん",r:"juubun",e:"enough",d:"Sufficient.",t:"adjective",lv:3},
+{w:"特別",k:"とくべつ",r:"tokubetsu",e:"special",d:"Out of the ordinary. Na-adjective.",t:"adjective",lv:3},
+{w:"立派",k:"りっぱ",r:"rippa",e:"splendid",d:"Fine and impressive. Na-adjective.",t:"adjective",lv:3},
+{w:"丈夫",k:"じょうぶ",r:"joubu",e:"sturdy",d:"Durable or robust. Na-adjective.",t:"adjective",lv:3},
+{w:"複雑",k:"ふくざつ",r:"fukuzatsu",e:"complicated",d:"Complex. Na-adjective.",t:"adjective",lv:3},
+{w:"適当",k:"てきとう",r:"tekitou",e:"suitable, half-hearted",d:"Appropriate — or slapdash, in casual use.",t:"adjective",lv:3},
+{w:"アプリ",k:"アプリ",r:"apuri",e:"app",d:"A phone application.",t:"katakana",lv:3},
+{w:"パスワード",k:"パスワード",r:"pasuwaado",e:"password",d:"A password.",t:"katakana",lv:3},
+{w:"アカウント",k:"アカウント",r:"akaunto",e:"account",d:"An online account.",t:"katakana",lv:3},
+{w:"ファイル",k:"ファイル",r:"fairu",e:"file",d:"A computer file.",t:"katakana",lv:3},
+{w:"キーボード",k:"キーボード",r:"kiiboodo",e:"keyboard",d:"A keyboard.",t:"katakana",lv:3},
+{w:"イヤホン",k:"イヤホン",r:"iyahon",e:"earphones",d:"Earphones.",t:"katakana",lv:3},
+{w:"バッテリー",k:"バッテリー",r:"batterii",e:"battery",d:"A battery.",t:"katakana",lv:3},
+{w:"コンセント",k:"コンセント",r:"konsento",e:"power socket",d:"A wall socket. Not English 'consent'.",t:"katakana",lv:3},
+{w:"プリンター",k:"プリンター",r:"purintaa",e:"printer",d:"A printer.",t:"katakana",lv:3},
+{w:"ミーティング",k:"ミーティング",r:"miitingu",e:"meeting",d:"A meeting.",t:"katakana",lv:3},
+{w:"プロジェクト",k:"プロジェクト",r:"purojekuto",e:"project",d:"A project.",t:"katakana",lv:3},
+{w:"チーム",k:"チーム",r:"chiimu",e:"team",d:"A team.",t:"katakana",lv:3},
+{w:"メンバー",k:"メンバー",r:"menbaa",e:"member",d:"A member of a group.",t:"katakana",lv:3},
+{w:"ルール",k:"ルール",r:"ruuru",e:"rule",d:"A rule.",t:"katakana",lv:3},
+{w:"チャンス",k:"チャンス",r:"chansu",e:"chance, opportunity",d:"An opportunity.",t:"katakana",lv:3},
+{w:"アイデア",k:"アイデア",r:"aidea",e:"idea",d:"An idea.",t:"katakana",lv:3},
+{w:"イメージ",k:"イメージ",r:"imeeji",e:"image, impression",d:"A mental image or impression.",t:"katakana",lv:3},
+{w:"サービス",k:"サービス",r:"saabisu",e:"service",d:"Service; also something given free.",t:"katakana",lv:3},
+{w:"レベル",k:"レベル",r:"reberu",e:"level",d:"A level or standard.",t:"katakana",lv:3},
+{w:"スタイル",k:"スタイル",r:"sutairu",e:"style, figure",d:"Style; also body shape.",t:"katakana",lv:3},
+{w:"マラソン",k:"マラソン",r:"marason",e:"marathon",d:"A marathon.",t:"katakana",lv:3},
+{w:"ヨガ",k:"ヨガ",r:"yoga",e:"yoga",d:"Yoga.",t:"katakana",lv:3},
+{w:"キャンプ",k:"キャンプ",r:"kyanpu",e:"camping",d:"Camping.",t:"katakana",lv:3},
+{w:"ハイキング",k:"ハイキング",r:"haikingu",e:"hiking",d:"Hiking.",t:"katakana",lv:3},
+{w:"ビーチ",k:"ビーチ",r:"biichi",e:"beach",d:"A beach.",t:"katakana",lv:3},
+{w:"ペンギン",k:"ペンギン",r:"pengin",e:"penguin",d:"A penguin.",t:"katakana",lv:3},
+{w:"スキー",k:"スキー",r:"sukii",e:"skiing",d:"Skiing.",t:"katakana",lv:3},
+{w:"ゴルフ",k:"ゴルフ",r:"gorufu",e:"golf",d:"Golf.",t:"katakana",lv:3},
+{w:"ダンス",k:"ダンス",r:"dansu",e:"dance",d:"Dancing.",t:"katakana",lv:3},
+{w:"レジ",k:"レジ",r:"reji",e:"checkout",d:"The till or checkout.",t:"katakana",lv:3},
+{w:"セール",k:"セール",r:"seeru",e:"sale",d:"A shop sale.",t:"katakana",lv:3}
+];
+WORDS.forEach((x,i)=>x.id=i);
+
+/* ============ storage ============ */
+/* Runs in three places: an Android WebView (Capacitor Preferences, durable),
+   a plain browser (localStorage), and both at once during development.        */
+const LS = "kotoba.v1";
+const CAP    = window.Capacitor || null;
+const NATIVE = !!(CAP && CAP.isNativePlatform && CAP.isNativePlatform());
+const Prefs  = (CAP && CAP.Plugins && CAP.Plugins.Preferences) || null;
+
+const DEFAULTS = {saved:[], cursor:0, day:"", savesToday:0, notifyOn:false, notifyTime:"08:00", theme:"auto"};
+let S = Object.assign({}, DEFAULTS);
+
+function loadLocal(){
+  try{
+    const raw = localStorage.getItem(LS);
+    if(raw) S = Object.assign({}, DEFAULTS, JSON.parse(raw));
+  }catch(e){}
+}
+function saveLocal(){
+  try{ localStorage.setItem(LS, JSON.stringify(S)); }catch(e){}
+}
+let writeTimer = null;
+function persist(){
+  saveLocal();                                   // instant, survives a reload
+  if(!Prefs) return;
+  clearTimeout(writeTimer);                      // debounced, survives anything
+  writeTimer = setTimeout(()=>{
+    Prefs.set({key:LS, value:JSON.stringify(S)}).catch(()=>{});
+  }, 300);
+}
+
+/* SharedPreferences is the source of truth on device: the WebView's
+   localStorage can be cleared by the system, SharedPreferences cannot. */
+async function connect(){
+  if(Prefs){
+    try{
+      const res = await Prefs.get({key:LS});
+      if(res && res.value){
+        const v = JSON.parse(res.value);
+        if(v && Array.isArray(v.saved) && v.saved.length >= S.saved.length){
+          S = Object.assign({}, DEFAULTS, v);
+          saveLocal();
+          applyTheme(); render(); renderPanel(); syncNotifyUI();
+          $("notify-time").value = S.notifyTime || "08:00";
+        }
+      }
+      persist();
+    }catch(e){}
+  }
+  await initNotifications();
+}
+
+/* ============ helpers ============ */
+const $ = id => document.getElementById(id);
+const todayKey = () => {
+  const d = new Date();
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+};
+function rollDay(){
+  const t = todayKey();
+  if(S.day !== t){ S.day = t; S.savesToday = 0; persist(); }
+}
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function shuffled(arr, seed){
+  const rnd = mulberry(seed), a = arr.slice();
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+/* Tiered deck: core everyday words first, then the rest of N5, then N4.
+   Shuffled inside each band so it still surprises, ordered across bands so
+   you don't meet 郵便局 before 水. */
+function buildDeck(){
+  const band = n => WORDS.filter(w=>w.lv===n).map(w=>w.id);
+  return shuffled(band(1), 20260919)
+    .concat(shuffled(band(2), 770214), shuffled(band(3), 313370));
+}
+const DECK = buildDeck();
+const chars = s => Array.from(s).length;
+function heroSize(s){
+  const n = chars(s);
+  if(n<=1) return "clamp(6rem, 42vw, 13rem)";
+  if(n===2) return "clamp(4.5rem, 34vw, 10rem)";
+  if(n===3) return "clamp(3.2rem, 24vw, 7rem)";
+  if(n===4) return "clamp(2.6rem, 19vw, 5.5rem)";
+  if(n<=6) return "clamp(2rem, 14vw, 4rem)";
+  return "clamp(1.6rem, 11vw, 3.2rem)";
+}
+function faceSize(s){
+  const n = chars(s);
+  if(n<=2) return "clamp(3.4rem, 26vw, 6rem)";
+  if(n===3) return "clamp(2.6rem, 20vw, 4.6rem)";
+  if(n<=5) return "clamp(2rem, 15vw, 3.4rem)";
+  return "clamp(1.5rem, 11vw, 2.6rem)";
+}
+let toastTimer;
+function hideToast(){ $("toast").classList.remove("show"); $("toast").classList.remove("act"); }
+function toast(msg, action){
+  const el = $("toast"), act = $("toast-act");
+  $("toast-msg").textContent = msg;
+  act.hidden = !action;
+  el.classList.toggle("act", !!action);
+  act.onclick = action ? ()=>{ hideToast(); action(); } : null;
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(hideToast, action ? 4500 : 1900);   // longer window when there's something to undo
+}
+
+/* ============ daily word ============ */
+function current(){ return WORDS[DECK[S.cursor % DECK.length]]; }
+const isSaved = id => S.saved.some(x=>x.id===id);
+
+function render(){
+  rollDay();
+  const w = current();
+  $("hero-word").textContent = w.w;
+  $("hero-word").style.setProperty("--hero", heroSize(w.w));
+  $("d-kana").textContent = w.k;
+  $("d-romaji").textContent = w.r;
+  $("d-trans").textContent = w.e;
+  $("d-def").textContent = w.d;
+  $("d-tag").textContent = w.t;
+  $("d-saved").classList.toggle("on", isSaved(w.id));
+
+  $("date").textContent = new Date().toLocaleDateString(undefined,{weekday:"short",day:"numeric",month:"short"});
+  const marks = $("marks").children;
+  for(let i=0;i<3;i++) marks[i].classList.toggle("spent", i < S.savesToday);
+  $("marks").title = TEST ? "Test mode — no daily limit" : (3-S.savesToday)+" of 3 words left to learn today";
+  $("saved-count").textContent = S.saved.length;
+
+  const out = !TEST && S.savesToday >= 3;
+  $("d-lock").classList.toggle("on", out);
+  updateChrome();
+}
+
+/* One place decides what the top bar and dock look like, based on which screen
+   you're actually on. Learn and Skip only act on today's word, so they're dead
+   anywhere else - and everywhere else gets a way back. */
+let panelOpen = false;
+function isAway(){ return !!mode || panelOpen || $("v-daily").hidden; }
+function updateChrome(){
+  const away = isAway();
+  $("open-list").classList.toggle("on", panelOpen);
+  $("b-back").hidden = !away;
+  $("b-keep").hidden = away;
+  $("b-skip").hidden = away;
+
+  const w = current();
+  const out = !TEST && S.savesToday >= 3;
+  $("b-keep").disabled = out || isSaved(w.id);
+  $("b-skip").disabled = out;
+  $("b-keep").lastChild.textContent = isSaved(w.id) ? "Saved" : (out ? "Done" : "Learn");
+  $("b-skip").lastChild.textContent = out ? "Tomorrow" : "Skip";
+}
+
+/* Session-only: triple-tap the marks in the top bar to lift the daily cap while
+   testing a big word list. Never persisted - a reload puts it back. */
+let TEST = false;
+function toggleTest(){
+  TEST = !TEST;
+  if(TEST){ S.savesToday = 0; persist(); }
+  $("marks").classList.toggle("test", TEST);
+  render();
+  toast(TEST ? "Test mode on — no daily limit, off on reload" : "Test mode off — three a day again");
+}
+
+function keep(){
+  rollDay();
+  if(!TEST && S.savesToday >= 3){ toast("Three a day — come back tomorrow"); return; }
+  const w = current();
+  if(isSaved(w.id)){ toast("Already in your deck"); return; }
+  S.saved.push({id:w.id, ts:Date.now()});
+  if(!TEST) S.savesToday++;
+  S.cursor++;
+  persist(); render(); renderPanel(); touchSchedule();
+}
+function skip(){
+  rollDay();
+  if(!TEST && S.savesToday >= 3){ toast("That's three for today — this one's waiting tomorrow"); return; }
+  const from = S.cursor, skipped = current();
+  S.cursor++; persist(); render(); touchSchedule();
+  $("v-daily").scrollTo({top:0,behavior:"smooth"});
+  toast(skipped.w + " skipped", ()=>{
+    S.cursor = from; persist(); render(); touchSchedule();
+    $("v-daily").scrollTo({top:0,behavior:"smooth"});
+  });
+}
+
+/* ============ practice ============ */
+let mode = null, pool = [], pos = 0, shown = false;
+
+function buildPool(){
+  const byTime = S.saved.slice().sort((a,b)=>b.ts-a.ts);
+  const recent = byTime.slice(0,10).map(x=>x.id);
+  const rest = shuffled(byTime.slice(10).map(x=>x.id), Date.now()&0xffff);
+  pool = recent.concat(rest);
+}
+function openMode(m){
+  if(panelOpen){ $("panel").classList.remove("open"); panelOpen = false; }
+  if(!S.saved.length){ show("v-empty"); setDock(null); toast("Save a word first"); return; }
+  mode = m; buildPool(); pos = 0; shown = false;
+  $("p-mode").textContent = m==="jp" ? "Japanese → English" : "English → Japanese";
+  show("v-practice"); setDock(m); paint();
+}
+function paint(){
+  if(!pool.length){ show("v-empty"); setDock(null); return; }
+  const w = WORDS[pool[pos % pool.length]];
+  const front = $("p-front"), back = $("p-back");
+  if(mode==="jp"){
+    front.innerHTML = '<div class="face-jp"></div>';
+    const el = front.firstChild; el.textContent = w.w; el.style.setProperty("--face", faceSize(w.w));
+    if(w.k !== w.w){                       // kana-only entries would just repeat themselves
+      const kana = document.createElement("p");
+      kana.className = "face-kana"; kana.textContent = w.k;
+      front.appendChild(kana);
+    }
+    back.innerHTML =
+      '<p class="face-en"></p><p class="face-def"></p><p class="romaji"></p>';
+    back.children[0].textContent = w.e;
+    back.children[1].textContent = w.d;
+    back.children[2].textContent = w.r;
+  }else{
+    front.innerHTML = '<p class="face-en"></p><p class="face-def"></p>';
+    front.children[0].textContent = w.e;
+    front.children[1].textContent = w.d;
+    back.innerHTML = '<div class="face-jp"></div><p class="romaji"></p>';
+    back.firstChild.textContent = w.w;
+    back.firstChild.style.setProperty("--face", faceSize(w.w));
+    back.children[1].textContent = w.k + (w.k!==w.r ? "  ·  "+w.r : "");
+  }
+  back.hidden = !shown;
+  if(shown) back.classList.add("reveal-in"); else back.classList.remove("reveal-in");
+  $("p-hint").textContent = shown ? "" : "Tap to reveal";
+  $("p-flip").textContent = shown ? "Hide" : "Reveal";
+  $("p-count").textContent = (pos%pool.length+1)+" / "+pool.length;
+  $("p-prev").disabled = pos===0;
+}
+function flip(){ shown = !shown; paint(); }
+function step(n){
+  if(!pool.length) return;
+  pos = Math.max(0, pos+n);
+  if(pos >= pool.length){
+    const recent = pool.slice(0,Math.min(10,pool.length));
+    const rest = shuffled(pool.slice(10), Date.now()&0xffff);
+    pool = recent.concat(rest); pos = 0;
+    toast("Back to the top of your deck");
+  }
+  shown = false; paint();
+}
+
+/* ============ views & dock ============ */
+function show(id){
+  ["v-daily","v-practice","v-empty"].forEach(v=>$(v).hidden = v!==id);
+  $(id).scrollTop = 0;
+}
+function setDock(m){
+  $("b-jp").classList.toggle("on", m==="jp");
+  $("b-en").classList.toggle("on", m==="en");
+  updateChrome();
+}
+function backToDaily(){
+  if(panelOpen){ $("panel").classList.remove("open"); panelOpen = false; }
+  mode = null; setDock(null); show("v-daily"); render();
+}
+
+/* ============ saved list ============ */
+function renderPanel(){
+  const list = $("panel-list"); list.innerHTML = "";
+  const byTime = S.saved.slice().sort((a,b)=>b.ts-a.ts);
+  $("panel-sub").textContent = byTime.length
+    ? byTime.length+" word"+(byTime.length===1?"":"s")+" · newest first"
+    : "Nothing saved yet";
+  if(!byTime.length){
+    const p = document.createElement("p");
+    p.style.cssText = "padding:28px 12px;color:var(--ink-3);line-height:1.6;font-size:.9375rem";
+    p.textContent = "Words you keep will show up here. Tap the ✕ on any of them to drop it from your deck.";
+    list.appendChild(p); return;
+  }
+  byTime.forEach(item=>{
+    const w = WORDS[item.id];
+    const row = document.createElement("div"); row.className = "entry";
+    const main = document.createElement("div"); main.className = "entry-main";
+    const jp = document.createElement("div"); jp.className = "entry-jp"; jp.textContent = w.w;
+    const sub = document.createElement("div"); sub.className = "entry-sub";
+    sub.textContent = w.k + " · " + w.e;
+    main.appendChild(jp); main.appendChild(sub);
+    const del = document.createElement("button");
+    del.textContent = "✕"; del.setAttribute("aria-label","Remove "+w.w);
+    del.addEventListener("click", ()=>{
+      S.saved = S.saved.filter(x=>x.id!==item.id);
+      persist(); renderPanel(); render();
+      if(mode){ if(S.saved.length){ buildPool(); pos=0; shown=false; paint(); } else { show("v-empty"); setDock(null); mode=null; } }
+      toast(w.w+" removed");
+    });
+    row.appendChild(main); row.appendChild(del);
+    list.appendChild(row);
+  });
+}
+
+/* ============ notifications ============ */
+/* On device: a rolling window of one-shot local notifications, each carrying
+   its own word. A single repeating alarm can't do that - its text is fixed at
+   schedule time, so you'd get the same word every morning forever. The window
+   is rewritten whenever the app opens or the deck moves, so it self-corrects.
+   In a browser: a setTimeout that only runs while the tab is open.           */
+const LN = (CAP && CAP.Plugins && CAP.Plugins.LocalNotifications) || null;
+const WINDOW_DAYS = 30;
+const NOTIF_BASE  = 1000;
+const CHANNEL     = "daily-word";
+
+let notifyTimer = null;
+function notifySupported(){
+  if(LN) return true;
+  try{ return typeof Notification !== "undefined"; }catch(e){ return false; }
+}
+function setHint(t){ $("notify-hint").textContent = t; }
+
+async function initNotifications(){
+  if(!LN){ scheduleWebNotify(); return; }
+  try{
+    if(CAP.getPlatform && CAP.getPlatform() === "android"){
+      await LN.createChannel({
+        id: CHANNEL, name: "Daily word",
+        description: "One Japanese word each morning",
+        importance: 3, visibility: 1
+      });
+    }
+    LN.addListener("localNotificationActionPerformed", ()=>{
+      rollDay(); backToDaily();
+    });
+  }catch(e){}
+  await refreshSchedule();
+}
+
+/* Cancel our window and lay down a fresh one. */
+async function refreshSchedule(){
+  if(!LN){ scheduleWebNotify(); return; }
+  try{
+    const pending = await LN.getPending();
+    const ours = (pending.notifications || [])
+      .filter(n => n.id >= NOTIF_BASE && n.id < NOTIF_BASE + WINDOW_DAYS)
+      .map(n => ({id: n.id}));
+    if(ours.length) await LN.cancel({notifications: ours});
+
+    if(!S.notifyOn) return;
+    const perm = await LN.checkPermissions();
+    if(perm.display !== "granted"){ setHint("Blocked - turn notifications on for Kotoba in Android settings"); return; }
+
+    const [h,m] = (S.notifyTime || "08:00").split(":").map(Number);
+    const base = new Date(); base.setHours(h, m, 0, 0);
+    if(base <= new Date()) base.setDate(base.getDate() + 1);
+
+    const list = [];
+    for(let i = 0; i < WINDOW_DAYS; i++){
+      const when = new Date(base.getTime());
+      when.setDate(base.getDate() + i);
+      const w = WORDS[DECK[(S.cursor + i) % DECK.length]];
+      list.push({
+        id: NOTIF_BASE + i,
+        title: w.w,
+        body: w.k + "  " + w.r + "\n" + w.e,
+        channelId: CHANNEL,
+        schedule: {at: when, allowWhileIdle: false}   // inexact: fires ~on time, no exact-alarm permission
+      });
+    }
+    await LN.schedule({notifications: list});
+    setHint("Your word arrives around " + S.notifyTime + " each day");
+  }catch(e){
+    setHint("Couldn't schedule the reminder on this device");
+  }
+}
+
+/* debounced - the deck moves on every skip */
+let reTimer = null;
+function touchSchedule(){
+  if(!LN || !S.notifyOn) return;
+  clearTimeout(reTimer);
+  reTimer = setTimeout(()=>refreshSchedule(), 1200);
+}
+
+/* ---- browser fallback ---- */
+function nextFireTime(){
+  const [h,m] = (S.notifyTime||"08:00").split(":").map(Number);
+  const now = new Date(), fire = new Date();
+  fire.setHours(h, m, 0, 0);
+  if(fire <= now) fire.setDate(fire.getDate()+1);
+  return fire;
+}
+function scheduleWebNotify(){
+  clearTimeout(notifyTimer);
+  if(LN) return;
+  if(!S.notifyOn || typeof Notification === "undefined" || Notification.permission !== "granted") return;
+  const ms = nextFireTime() - new Date();
+  setHint("Next at " + S.notifyTime + ", while the app is open");
+  notifyTimer = setTimeout(()=>{ fireWeb(); scheduleWebNotify(); }, Math.min(ms, 2147483647));
+}
+function fireWeb(){
+  try{
+    const w = current();
+    const n = new Notification(w.w, {body: w.k+"  "+w.r+"\n"+w.e, tag:"kotoba-daily", lang:"ja"});
+    n.onclick = ()=>{ window.focus(); backToDaily(); n.close(); };
+  }catch(e){}
+}
+
+async function toggleNotify(){
+  if(S.notifyOn){
+    S.notifyOn = false; persist(); syncNotifyUI();
+    clearTimeout(notifyTimer);
+    if(LN) await refreshSchedule();
+    setHint("Off");
+    return;
+  }
+  if(LN){
+    let p = await LN.checkPermissions();
+    if(p.display !== "granted") p = await LN.requestPermissions();   // POST_NOTIFICATIONS on Android 13+
+    if(p.display !== "granted"){
+      setHint("Blocked - turn notifications on for Kotoba in Android settings");
+      return;
+    }
+    S.notifyOn = true; persist(); syncNotifyUI();
+    await refreshSchedule();
+    return;
+  }
+  if(typeof Notification === "undefined"){ setHint("Notifications aren't available here"); return; }
+  let perm = Notification.permission;
+  if(perm === "default"){
+    try{ perm = await Notification.requestPermission(); }catch(e){ perm = "denied"; }
+  }
+  if(perm !== "granted"){ setHint("Blocked - turn notifications on for this site in your browser settings"); return; }
+  S.notifyOn = true; persist(); syncNotifyUI(); scheduleWebNotify(); fireWeb();
+}
+function syncNotifyUI(){
+  const sw = $("notify-toggle");
+  sw.classList.toggle("on", !!S.notifyOn);
+  sw.setAttribute("aria-checked", S.notifyOn ? "true" : "false");
+  if(!S.notifyOn) setHint("Off");
+}
+
+/* ============ theme ============ */
+function applyTheme(){
+  const t = S.theme || "auto";
+  if(t === "auto") document.documentElement.removeAttribute("data-theme");
+  else document.documentElement.setAttribute("data-theme", t);
+  $("theme-sel").value = t;
+}
+
+/* ============ wiring ============ */
+loadLocal();
+rollDay();
+applyTheme();
+render();
+renderPanel();
+syncNotifyUI();
+$("notify-time").value = S.notifyTime || "08:00";
+scheduleWebNotify();
+
+$("b-keep").addEventListener("click", keep);
+$("b-skip").addEventListener("click", skip);
+$("b-jp").addEventListener("click", ()=> mode==="jp" ? backToDaily() : openMode("jp"));
+$("b-en").addEventListener("click", ()=> mode==="en" ? backToDaily() : openMode("en"));
+$("p-card").addEventListener("click", flip);
+$("p-flip").addEventListener("click", e=>{ e.stopPropagation(); flip(); });
+$("p-next").addEventListener("click", ()=>step(1));
+$("p-prev").addEventListener("click", ()=>step(-1));
+
+let tapN = 0, tapT = null;
+$("marks").addEventListener("click", ()=>{
+  tapN++; clearTimeout(tapT);
+  tapT = setTimeout(()=>{ tapN = 0; }, 700);
+  if(tapN >= 3){ tapN = 0; toggleTest(); }
+});
+
+$("b-back").addEventListener("click", backToDaily);
+$("open-list").addEventListener("click", ()=>{
+  if(panelOpen){
+    $("panel").classList.remove("open"); panelOpen = false;
+  }else{
+    renderPanel(); $("panel").classList.add("open"); panelOpen = true;
+  }
+  updateChrome();
+});
+$("notify-toggle").addEventListener("click", toggleNotify);
+$("notify-time").addEventListener("change", e=>{
+  S.notifyTime = e.target.value || "08:00"; persist();
+  if(S.notifyOn){ if(LN) refreshSchedule(); else scheduleWebNotify(); }
+});
+$("theme-sel").addEventListener("change", e=>{ S.theme = e.target.value; persist(); applyTheme(); });
+
+document.addEventListener("keydown", e=>{
+  if(e.target.matches("input,select")) return;
+  if(mode){
+    if(e.key==="ArrowRight") step(1);
+    else if(e.key==="ArrowLeft") step(-1);
+    else if(e.key===" "||e.key==="Enter"){ e.preventDefault(); flip(); }
+  }
+  if(e.key==="Escape" && isAway()) backToDaily();
+});
+
+// keep the day boundary honest if the tab stays open
+setInterval(()=>{ const t=todayKey(); if(S.day!==t){ rollDay(); render(); } }, 60000);
+document.addEventListener("visibilitychange", ()=>{
+  if(!document.hidden){ rollDay(); if(!mode) render(); if(LN && S.notifyOn) refreshSchedule(); }
+});
+
+connect();
+</script>
+</body>
+</html>

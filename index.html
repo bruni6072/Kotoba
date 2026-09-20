@@ -1192,6 +1192,17 @@ function buildPool(){
   const rest = shuffled(byTime.slice(10).map(x=>x.id), Date.now()&0xffff);
   pool = recent.concat(rest);
 }
+/* Recall and Write behave like tabs: they switch modes, they never exit.
+   Tapping the one you're already on does nothing, except close the saved
+   panel if it's covering you - restarting the deck there would lose your place. */
+function gotoMode(m){
+  if(mode === m){
+    if(panelOpen){ $("panel").classList.remove("open"); panelOpen = false; updateChrome(); }
+    return;
+  }
+  openMode(m);
+}
+
 function openMode(m){
   if(panelOpen){ $("panel").classList.remove("open"); panelOpen = false; }
   if(!S.saved.length){ show("v-empty"); setDock(null); toast("Save a word first"); return; }
@@ -1453,8 +1464,8 @@ scheduleWebNotify();
 
 $("b-keep").addEventListener("click", keep);
 $("b-skip").addEventListener("click", skip);
-$("b-jp").addEventListener("click", ()=> mode==="jp" ? backToDaily() : openMode("jp"));
-$("b-en").addEventListener("click", ()=> mode==="en" ? backToDaily() : openMode("en"));
+$("b-jp").addEventListener("click", ()=> gotoMode("jp"));
+$("b-en").addEventListener("click", ()=> gotoMode("en"));
 $("p-card").addEventListener("click", flip);
 $("p-flip").addEventListener("click", e=>{ e.stopPropagation(); flip(); });
 $("p-next").addEventListener("click", ()=>step(1));
